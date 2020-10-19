@@ -1,0 +1,2 @@
+COMP40 Compressed image format 2 
+1 2
