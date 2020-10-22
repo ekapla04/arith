@@ -37,6 +37,12 @@ void free_RGB_array(int col, int row, A2Methods_UArray2 src_img,
 void free_VCS_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *vcs_elem, void *cl);
 
+void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *rgb_elem, void *cl);
+
+void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *rgb_elem, void *cl);
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Pnm_ppm create_ppm(Pnm_ppm src_img);
@@ -79,6 +85,13 @@ extern void compress40(FILE *input)
     methods->free(&(pixmap->pixels));
     pixmap->pixels = square_array;
 
+    unsigned *denominator;
+    denominator = &pixmap->denominator;
+    printf("************** STANDARDIZING ORIGINAL RGB VALUES **************\n");
+    methods->map_row_major(pixmap->pixels, standardize_RGB, denominator); 
+    printf("************** RESTORING ORIGINAL RGB VALUES ******************\n");
+    methods->map_row_major(pixmap->pixels, restore_RGB, denominator); 
+
     /* * * * * * * * * * * * convert to VCS * * * * * * * * * * */
     A2Methods_UArray2 VCS_array = methods->new(pixmap->width, pixmap->height,
                                         sizeof(struct brightness));
@@ -103,12 +116,57 @@ extern void compress40(FILE *input)
 
     printf("\nfinished reversion\n");
 
-    /////////////////////////////////////////////////////////
-    // methods->map_row_major(pixmap->pixels, free_RGB_array, NULL);  
-    // methods->map_row_major(pixmap->pixels, free_VCS_array, NULL);  
-
+    // /////////////////////////////////////////////////////////
+    // // methods->map_row_major(pixmap->pixels, free_RGB_array, NULL);  
+    // // methods->map_row_major(pixmap->pixels, free_VCS_array, NULL);  
     Pnm_ppmfree(&pixmap);
 }
+
+void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *rgb_elem, void *cl)
+{
+    (void)col;
+    (void)row;
+    (void)src_img;
+
+    unsigned *denominator = (unsigned *)cl;
+    float temp = (float)(*denominator);
+
+    A2Methods_T methods = uarray2_methods_plain; 
+
+    Pnm_rgb RGB = ((Pnm_rgb) rgb_elem);
+    printf("red_o: %d, blue_o: %d, green_o: %d\n", RGB->red, RGB->blue, RGB->green);
+    RGB->red = ((float)RGB->red / temp);
+    RGB->green = ((float)RGB->green / temp);
+    RGB->blue = ((float)RGB->blue / temp);
+
+    *((Pnm_rgb)methods->at(src_img, col, row)) = *RGB; 
+    // losing a lot of precision --> 7/15 becomes 0.....
+    printf("red: %d, blue: %d, green: %d\n", RGB->red, RGB->blue, RGB->green);
+}
+
+void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *rgb_elem, void *cl)
+{
+    (void)col;
+    (void)row;
+    (void)src_img;
+
+    unsigned *denominator = (unsigned *)cl;
+    float temp = (float)(*denominator);
+
+    A2Methods_T methods = uarray2_methods_plain; 
+
+    Pnm_rgb RGB = ((Pnm_rgb) rgb_elem);
+    RGB->red = ((float)RGB->red * temp);
+    RGB->green = ((float)RGB->green * temp);
+    RGB->blue = ((float)RGB->blue * temp);
+
+    *((Pnm_rgb)methods->at(src_img, col, row)) = *RGB; 
+    printf("red: %d, blue: %d, green %d\n", RGB->red, RGB->blue, RGB->green);
+}
+
+
 
 
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
