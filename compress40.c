@@ -44,6 +44,7 @@ void free_VCS_array(int col, int row, A2Methods_UArray2 src_img,
 
 // void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
 //                 A2Methods_Object *rgb_elem, void *cl);
+// hey
 
 // void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
 //                 A2Methods_Object *rgb_elem, void *cl);
