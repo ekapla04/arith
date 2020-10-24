@@ -1,4 +1,4 @@
-# Makefile for locality (Comp 40 Assignment 3)
+# Makefile for arith (Comp 40 Assignment 4)
 # 
 # Includes build rules for a2test and ppmtrans.
 #
@@ -61,7 +61,7 @@ all: ppmdiff arith
 
 ## Linking step (.o -> executable program)
 
-arith: driver.o a2plain.o uarray2.o compress40.o
+arith: driver.o a2plain.o uarray2.o compress40.o compression.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 ppmdiff: ppmdiff.o a2plain.o uarray2.o

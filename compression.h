@@ -1,5 +1,4 @@
 #include "compress40.h"
-#include "compression.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "pnm.h"
@@ -9,4 +8,8 @@
 #include "stdbool.h"
 #include "string.h"
 
-//TESTING REMOTE SYNC!
+
+void compress_by_block(A2Methods_UArray2 VCS_array);
+
+uint64_t quantize_chroma(A2Methods_UArray2 VCS_array);
+

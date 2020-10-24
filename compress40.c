@@ -8,6 +8,8 @@
 #include "stdbool.h"
 #include "string.h"
 
+#include "compression.h"
+
 typedef struct brightness {
     float Y;
     float PB;
@@ -19,7 +21,7 @@ typedef struct closure {
     char* operation;
 } closure;
 
-
+unsigned DENOMINATOR = 0;
 /* * * * * * * * * * Function declarations * * * * * * * * * * * */
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *dest_array);
@@ -43,12 +45,12 @@ void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *cl);
 
 
-// void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
-//                 A2Methods_Object *rgb_elem, void *cl);
-
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Pnm_ppm create_ppm(Pnm_ppm src_img);
+
+
+// void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
+//                 A2Methods_Object *rgb_elem, void *cl);
 
 extern void decompress40(FILE *input) 
 {
@@ -70,6 +72,9 @@ extern void compress40(FILE *input)
 
     Pnm_ppm pixmap = Pnm_ppmread(input, methods);
     assert(pixmap && methods);
+
+    DENOMINATOR = pixmap->denominator;
+    printf("denominator: %u\n", DENOMINATOR);
 
     /* * * * * * * * * * * * * * trim image * * * * * * * * * * */
     if (pixmap->width % 2 != 0) { 
@@ -98,7 +103,7 @@ extern void compress40(FILE *input)
     //need to eventually free this memory
 
     printf("************** STANDARDIZING ORIGINAL RGB VALUES **************\n");
-    methods->map_row_major(pixmap->pixels, standardize_RGB, cl); 
+    //methods->map_row_major(pixmap->pixels, standardize_RGB, cl); 
 
     // cl->operation = "*";
     // methods->map_row_major(pixmap->pixels, standardize_RGB, cl);
@@ -127,6 +132,10 @@ extern void compress40(FILE *input)
 
     // printf("\nfinished reversion\n");
 
+    /* * * * * * * * * * * * * * compress by block * * * * * * * * * * */
+    compress_by_block(VCS_array);
+
+
     /////////////////////////////////////////////////////////
     //methods->map_row_major(pixmap->pixels, free_array, NULL);  
     
@@ -146,7 +155,15 @@ extern void compress40(FILE *input)
           0 0 0 0
     - once we have 2x2:
         - avg chroma (C1->Y + C2->Y + C3->Y + C4->Y)
+    - for (row = 0; row < width - 2; row + 2) {
+            ex. index (0, 0)
+            get indexes : (row, col) , (row + 1, col), (row, col + 1), (row + 1, col + 1)
+            save into data structure called 2x2 block or something
+            pass block into functions to manipulate it
+            get next block (ie. continue for loop)
+        }
 */
+
 
 //TODO: STORE AS FLOATS OR THEY GET ROUNDED TO 0 OR 1
 void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
@@ -219,9 +236,10 @@ brightness convert_RGB(Pnm_rgb RGB)
 {
     //brightness *VCS_values;
     brightness VCS_values = malloc(sizeof(struct brightness)); 
-    float r = RGB->red;
-    float b = RGB->blue;
-    float g = RGB->green;
+
+    float r = (float)RGB->red/DENOMINATOR;
+    float b = (float)RGB->blue/DENOMINATOR;
+    float g = (float)RGB->green/DENOMINATOR;
 
     VCS_values->Y =  (0.299 * r) + (0.587 * g) + (0.114 * b);
 
@@ -267,13 +285,17 @@ Pnm_rgb convert_VCS(brightness VCS)
 {
     Pnm_rgb RGB_values = malloc(sizeof(struct Pnm_rgb));
 
-    RGB_values->red = (1.0 * VCS->Y) + (0.0 * VCS->PB) + (1.402 * VCS->PR);
-    RGB_values->green = (1.0 * VCS->Y) - (0.344136 * VCS->PB) - 
-                                (0.714136 * VCS->PR);
-    RGB_values->blue = (1.0 * VCS->Y) + (1.772 * VCS->PB) + (0.0 * VCS->PR);
+    float y = (float)VCS->Y*DENOMINATOR;
+    float pb = (float)VCS->PB*DENOMINATOR;
+    float pr = (float)VCS->PR*DENOMINATOR;
+
+    RGB_values->red = (1.0 * y) + (0.0 * pb) + (1.402 * pr);
+    RGB_values->green = (1.0 * y) - (0.344136 * pb) - (0.714136 * pr);
+    RGB_values->blue = (1.0 * y) + (1.772 * pb) + (0.0 * pr);
     
     if (RGB_values->red != 0 || RGB_values->green != 0 || RGB_values->blue != 0){
             printf("original R: %u, G: %u, B: %u\n", RGB_values->red, RGB_values->green, RGB_values->blue);
+            printf("Y: %f, PB: %f, PR: %f\n", y, pb, pr);
     }
 
     //printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
