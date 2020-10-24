@@ -7,9 +7,16 @@
 #include "a2plain.h"
 #include "stdbool.h"
 #include "string.h"
+#include "arith40.h"
 
+#include "decompression.h"
 
 void compress_by_block(A2Methods_UArray2 VCS_array);
 
-uint64_t quantize_chroma(A2Methods_UArray2 VCS_array);
+block_info quantize_chroma(Pnm_VCS pixel1, Pnm_VCS pixel2, 
+                           Pnm_VCS pixel3, Pnm_VCS pixel4);
+
+void perform_DCT(Pnm_VCS pixel1, Pnm_VCS pixel2, 
+                       Pnm_VCS pixel3, Pnm_VCS pixel4, block_info block);
+
 

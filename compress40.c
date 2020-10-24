@@ -10,12 +10,6 @@
 
 #include "compression.h"
 
-typedef struct brightness {
-    float Y;
-    float PB;
-    float PR;
-} *brightness; 
-
 typedef struct closure {
     unsigned denominator;
     char* operation;
@@ -30,13 +24,13 @@ void copy_array(int col, int row, A2Methods_UArray2 src_img,
 void RGB_to_VCS(int col, int row, A2Methods_UArray2 array2,
                 A2Methods_Object *ptr, void *VCS_array);
 
-brightness convert_RGB(Pnm_rgb RGB);
+Pnm_VCS convert_RGB(Pnm_rgb RGB);
 
 
 void VCS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *vcs_elem, void *cl);
 
-Pnm_rgb convert_VCS(brightness VCS);
+Pnm_rgb convert_VCS(Pnm_VCS VCS);
 
 void free_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *vcs_elem, void *cl);
@@ -60,7 +54,7 @@ extern void decompress40(FILE *input)
     assert(read == 2);
     int c = getc(input);
     assert(c == '\n');
-    printf("width: %u, height: %u\n", width, height);
+    // printf("width: %u, height: %u\n", width, height);
     // printf("hello\n");
     // Pnm_ppm pixmap = Pnm_ppmread(input);
     // assert(pixmap);
@@ -74,7 +68,6 @@ extern void compress40(FILE *input)
     assert(pixmap && methods);
 
     DENOMINATOR = pixmap->denominator;
-    printf("denominator: %u\n", DENOMINATOR);
 
     /* * * * * * * * * * * * * * trim image * * * * * * * * * * */
     if (pixmap->width % 2 != 0) { 
@@ -102,7 +95,7 @@ extern void compress40(FILE *input)
 
     //need to eventually free this memory
 
-    printf("************** STANDARDIZING ORIGINAL RGB VALUES **************\n");
+    // printf("************** STANDARDIZING ORIGINAL RGB VALUES **************\n");
     //methods->map_row_major(pixmap->pixels, standardize_RGB, cl); 
 
     // cl->operation = "*";
@@ -111,7 +104,7 @@ extern void compress40(FILE *input)
 
     /* * * * * * * * * * * * convert to VCS * * * * * * * * * * */
     A2Methods_UArray2 VCS_array = methods->new(pixmap->width, pixmap->height,
-                                        sizeof(struct brightness));
+                                        sizeof(struct Pnm_VCS));
 
 
     methods->map_row_major(pixmap->pixels, RGB_to_VCS, VCS_array);
@@ -165,40 +158,6 @@ extern void compress40(FILE *input)
 */
 
 
-//TODO: STORE AS FLOATS OR THEY GET ROUNDED TO 0 OR 1
-void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *rgb_elem, void *cl)
-{
-    (void)col;
-    (void)row;
-    (void)src_img;
-
-    closure *cl_struct = (closure *)cl;
-    unsigned denominator = cl_struct->denominator;
-    float temp = (float)denominator;
-
-    char* operation = cl_struct->operation;
-
-    A2Methods_T methods = uarray2_methods_plain; 
-    Pnm_rgb RGB = ((Pnm_rgb) rgb_elem);
-
-    if (strcmp(operation, "*") == 0) {
-        RGB->red = ((float)RGB->red * temp);
-        RGB->green = ((float)RGB->green * temp);
-        RGB->blue = ((float)RGB->blue * temp);
-        printf("red_*: %f, blue_*: %d, green_*: %d\n", (float)RGB->red, RGB->blue, RGB->green);
-    }
-    else if (strcmp(operation, "/") == 0) {
-        RGB->red = ((float)RGB->red / temp);
-        RGB->green = ((float)RGB->green / temp);
-        RGB->blue = ((float)RGB->blue / temp);
-        printf("red/: %f, blue/: %d, green/: %d\n", (float)RGB->red, RGB->blue, RGB->green);
-    }
-    // printf("red_: %d, blue_o: %d, green_o: %d\n", RGB->red, RGB->blue, RGB->green);
-    *((Pnm_rgb)methods->at(src_img, col, row)) = *RGB; 
-    // losing a lot of precision --> 7/15 becomes 0.....
-}
-
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *dest_img)
 {
@@ -216,26 +175,26 @@ void RGB_to_VCS(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *VCS_array)
 {
     (void)src_img;
-    printf("\ncol: %d and row: %d\n", col, row);
+    // printf("\ncol: %d and row: %d\n", col, row);
     
     A2Methods_T methods = uarray2_methods_plain; 
     VCS_array = (A2Methods_UArray2)VCS_array;
 
-    brightness VCS_values = convert_RGB((Pnm_rgb)rgb_elem);
+    Pnm_VCS VCS_values = convert_RGB((Pnm_rgb)rgb_elem);
 
-    // brightness *dest = (methods)->at(VCS_array, col, row);
+    // Pnm_VCS *dest = (methods)->at(VCS_array, col, row);
     // //(*dest)->Y = 5;
     // *dest = *VCS_values; //TODO: investigate
 
-    *((brightness)methods->at(VCS_array, col, row)) = *((brightness)VCS_values);
+    *((Pnm_VCS)methods->at(VCS_array, col, row)) = *((Pnm_VCS)VCS_values);
 
 }
 
 
-brightness convert_RGB(Pnm_rgb RGB)
+Pnm_VCS convert_RGB(Pnm_rgb RGB)
 {
-    //brightness *VCS_values;
-    brightness VCS_values = malloc(sizeof(struct brightness)); 
+    //Pnm_VCS *VCS_values;
+    Pnm_VCS VCS_values = malloc(sizeof(struct Pnm_VCS)); 
 
     float r = (float)RGB->red/DENOMINATOR;
     float b = (float)RGB->blue/DENOMINATOR;
@@ -247,10 +206,10 @@ brightness convert_RGB(Pnm_rgb RGB)
 
     VCS_values->PR = (0.5 * r) - (0.418688 * g) - (0.081312 * b);
 
-    if (r != 0 || g != 0 || b != 0){
-        printf("R: %f, G: %f, B: %f\n", r, g, b);
-        printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
-    }
+    // if (r != 0 || g != 0 || b != 0){
+    //     printf("R: %f, G: %f, B: %f\n", r, g, b);
+    //     printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
+    // }
 
     return VCS_values;
 }
@@ -261,14 +220,14 @@ brightness convert_RGB(Pnm_rgb RGB)
 void VCS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *vcs_elem, void *RGB_array)
 {
-/* src_img holds brightness struct, cl/destination holds rgb struct */
+/* src_img holds Pnm_VCS struct, cl/destination holds rgb struct */
     (void)src_img;
-    fprintf(stderr, "\ncol: %d and row: %d\n", col, row);
+    // fprintf(stderr, "\ncol: %d and row: %d\n", col, row);
 
     A2Methods_T methods = uarray2_methods_plain; 
     RGB_array = (A2Methods_UArray2)RGB_array;
 
-    Pnm_rgb RGB_values = convert_VCS((brightness)vcs_elem);
+    Pnm_rgb RGB_values = convert_VCS((Pnm_VCS)vcs_elem);
     // fprintf(stderr, "r: %u, g: %u, b: %u\n", RGB_values->red, RGB_values->green, RGB_values->blue);
 
     Pnm_rgb *dest = methods->at(RGB_array, col, row);
@@ -281,7 +240,7 @@ void VCS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
 }
 
 //IN PROGRESS!
-Pnm_rgb convert_VCS(brightness VCS)
+Pnm_rgb convert_VCS(Pnm_VCS VCS)
 {
     Pnm_rgb RGB_values = malloc(sizeof(struct Pnm_rgb));
 
@@ -293,10 +252,10 @@ Pnm_rgb convert_VCS(brightness VCS)
     RGB_values->green = (1.0 * y) - (0.344136 * pb) - (0.714136 * pr);
     RGB_values->blue = (1.0 * y) + (1.772 * pb) + (0.0 * pr);
     
-    if (RGB_values->red != 0 || RGB_values->green != 0 || RGB_values->blue != 0){
-            printf("original R: %u, G: %u, B: %u\n", RGB_values->red, RGB_values->green, RGB_values->blue);
-            printf("Y: %f, PB: %f, PR: %f\n", y, pb, pr);
-    }
+    // if (RGB_values->red != 0 || RGB_values->green != 0 || RGB_values->blue != 0){
+    //         printf("original R: %u, G: %u, B: %u\n", RGB_values->red, RGB_values->green, RGB_values->blue);
+    //         printf("Y: %f, PB: %f, PR: %f\n", y, pb, pr);
+    // }
 
     //printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
     return RGB_values;
@@ -312,8 +271,8 @@ void free_array(int col, int row, A2Methods_UArray2 src_img,
     // (void)row;
     (void)src_img;
     (void)cl;
-    printf("freeing %f at %d, %d\n", ((brightness)vcs_elem)->Y, col, row);
-    free((brightness)vcs_elem);
+    printf("freeing %f at %d, %d\n", ((Pnm_VCS)vcs_elem)->Y, col, row);
+    free((Pnm_VCS)vcs_elem);
 }
 
 
@@ -327,7 +286,7 @@ void free_array(int col, int row, A2Methods_UArray2 src_img,
 //     int width = src_img->width;
 //     int height = src_img->height;
 //     //int size = src_img->methods->size(src_img->pixels);
-//     int size = (int)sizeof(struct brightness);
+//     int size = (int)sizeof(struct Pnm_VCS);
 
 //     Pnm_ppm final_image = malloc(sizeof(*final_image));
 //     assert(final_image != NULL);
@@ -360,4 +319,39 @@ void free_array(int col, int row, A2Methods_UArray2 src_img,
 
 //     *((Pnm_rgb)methods->at(src_img, col, row)) = *RGB; 
 //     printf("red: %d, blue: %d, green %d\n", RGB->red, RGB->blue, RGB->green);
+// }
+
+
+//TODO: STORE AS FLOATS OR THEY GET ROUNDED TO 0 OR 1
+// void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
+//                 A2Methods_Object *rgb_elem, void *cl)
+// {
+//     (void)col;
+//     (void)row;
+//     (void)src_img;
+
+//     closure *cl_struct = (closure *)cl;
+//     unsigned denominator = cl_struct->denominator;
+//     float temp = (float)denominator;
+
+//     char* operation = cl_struct->operation;
+
+//     A2Methods_T methods = uarray2_methods_plain; 
+//     Pnm_rgb RGB = ((Pnm_rgb) rgb_elem);
+
+//     if (strcmp(operation, "*") == 0) {
+//         RGB->red = ((float)RGB->red * temp);
+//         RGB->green = ((float)RGB->green * temp);
+//         RGB->blue = ((float)RGB->blue * temp);
+//         printf("red_*: %f, blue_*: %d, green_*: %d\n", (float)RGB->red, RGB->blue, RGB->green);
+//     }
+//     else if (strcmp(operation, "/") == 0) {
+//         RGB->red = ((float)RGB->red / temp);
+//         RGB->green = ((float)RGB->green / temp);
+//         RGB->blue = ((float)RGB->blue / temp);
+//         printf("red/: %f, blue/: %d, green/: %d\n", (float)RGB->red, RGB->blue, RGB->green);
+//     }
+//     // printf("red_: %d, blue_o: %d, green_o: %d\n", RGB->red, RGB->blue, RGB->green);
+//     *((Pnm_rgb)methods->at(src_img, col, row)) = *RGB; 
+//     // losing a lot of precision --> 7/15 becomes 0.....
 // }

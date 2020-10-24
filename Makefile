@@ -61,7 +61,7 @@ all: ppmdiff arith
 
 ## Linking step (.o -> executable program)
 
-arith: driver.o a2plain.o uarray2.o compress40.o compression.o
+arith: driver.o a2plain.o uarray2.o compress40.o compression.o decompression.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 ppmdiff: ppmdiff.o a2plain.o uarray2.o
