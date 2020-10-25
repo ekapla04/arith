@@ -1,22 +1,24 @@
-#include "compress40.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "pnm.h"
+#include <stdbool.h>
+#include <string.h>
+
 #include "assert.h"
+#include "pnm.h"
 #include "a2methods.h"
 #include "a2plain.h"
-#include "stdbool.h"
-#include "string.h"
 #include "arith40.h"
 
 #include "decompression.h"
+#include "compress40.h"
 
-void compress_by_block(A2Methods_UArray2 VCS_array);
+void compress_by_block(A2Methods_UArray2 CVS_array);
 
-block_info quantize_chroma(Pnm_VCS pixel1, Pnm_VCS pixel2, 
-                           Pnm_VCS pixel3, Pnm_VCS pixel4);
+block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                           Pnm_CVS pixel3, Pnm_CVS pixel4);
 
-void perform_DCT(Pnm_VCS pixel1, Pnm_VCS pixel2, 
-                       Pnm_VCS pixel3, Pnm_VCS pixel4, block_info block);
+void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                       Pnm_CVS pixel3, Pnm_CVS pixel4, block_info block);
 
+int64_t quantize_degree_brightness(float degree);
 

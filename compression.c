@@ -14,11 +14,11 @@
 #include "compression.h"
 
 
-void compress_by_block(A2Methods_UArray2 VCS_array)
+void compress_by_block(A2Methods_UArray2 CVS_array)
 {
     A2Methods_T methods = uarray2_methods_plain; 
-    int width = methods->width(VCS_array);
-    int height = methods->height(VCS_array);
+    int width = methods->width(CVS_array);
+    int height = methods->height(CVS_array);
     printf("width: %d, height: %d\n", width, height);
 
     // X 0 X 0
@@ -30,10 +30,10 @@ void compress_by_block(A2Methods_UArray2 VCS_array)
         for (int col = 0; col < width; col += 2){
             printf("(%d, %d)\n", row, col);
 
-            Pnm_VCS pixel1 = methods->at(VCS_array, col, row);
-            Pnm_VCS pixel2 = methods->at(VCS_array, col, row + 1);
-            Pnm_VCS pixel3 = methods->at(VCS_array, col + 1, row);
-            Pnm_VCS pixel4 = methods->at(VCS_array, col + 1, row + 1);
+            Pnm_CVS pixel1 = methods->at(CVS_array, col, row);
+            Pnm_CVS pixel2 = methods->at(CVS_array, col + 1, row);
+            Pnm_CVS pixel3 = methods->at(CVS_array, col, row + 1);
+            Pnm_CVS pixel4 = methods->at(CVS_array, col + 1, row + 1);
 
 
             // lets make brightness ptrs to pixels at each location we want
@@ -47,18 +47,21 @@ void compress_by_block(A2Methods_UArray2 VCS_array)
 
             block_info block = quantize_chroma(pixel1, pixel2, pixel3, pixel4);
 
-            Pnm_VCS VCS = malloc(sizeof(struct Pnm_VCS));
+            Pnm_CVS CVS = malloc(sizeof(struct Pnm_CVS)); // TODO: FREEE
 
             perform_DCT(pixel1, pixel2, pixel3, pixel4, block);
             inverse_DCT(pixel1, pixel2, pixel3, pixel4, block);
 
-            unquantize_chroma(block, VCS);
+            unquantize_chroma(block, CVS); // TODO: FREE BLOCK_INFO STRUCT
+
+            printf("\n\n");
+
         }
     }
 }
 
-block_info quantize_chroma(Pnm_VCS pixel1, Pnm_VCS pixel2, 
-                           Pnm_VCS pixel3, Pnm_VCS pixel4)
+block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                           Pnm_CVS pixel3, Pnm_CVS pixel4)
 {
 
     float avg_PB = ((pixel1->PB + pixel2->PB + pixel3->PB + pixel4->PB)/4);
@@ -79,14 +82,14 @@ block_info quantize_chroma(Pnm_VCS pixel1, Pnm_VCS pixel2,
     return block;
 }
 
-void perform_DCT(Pnm_VCS pixel1, Pnm_VCS pixel2, 
-                 Pnm_VCS pixel3, Pnm_VCS pixel4, block_info block)
+void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                 Pnm_CVS pixel3, Pnm_CVS pixel4, block_info block)
 {
     float Y1 = pixel1->Y;
     float Y2 = pixel2->Y;
     float Y3 = pixel3->Y;
     float Y4 = pixel4->Y;
-    printf("(PRE DCT p1: %f | p2: %f | p3: %f | p4: %f)\n" , pixel1->Y, pixel2->Y,
+    printf("(PRE DCT Y1: %f | Y2: %f | Y3: %f | Y4: %f)\n" , pixel1->Y, pixel2->Y,
                  pixel3->Y, pixel4->Y);
 
     float a = (Y4 + Y3 + Y2 + Y1)/4.0;
@@ -94,11 +97,49 @@ void perform_DCT(Pnm_VCS pixel1, Pnm_VCS pixel2,
     float c = (Y4 - Y3 + Y2 - Y1)/4.0;
     float d = (Y4 - Y3 - Y2 + Y1)/4.0;
 
-    block->a = a;
-    block->b = b;
-    block->c = c;
-    block->d = d;
 
-    // printf("a: %f, b: %f, c: %f, d: %f\n", block->a, block->b, block->c, block->d);
+//(uint64_T)
+    printf(" BEFORe quant: a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
+
+    block->a = (a * 511); //Question: round?
+    block->b = quantize_degree_brightness(b);
+    block->c = quantize_degree_brightness(c);
+    block->d = quantize_degree_brightness(d);
+
+    printf("\n AFTER quant: a: %lu, b: %ld, c: %ld, d: %ld\n", block->a, block->b, block->c, block->d);
 
 }
+
+int64_t quantize_degree_brightness(float degree)
+{
+    if (degree <= -0.25){
+        return -15;
+
+    } else if (-0.25 <= degree && degree < -0.15){
+        return -12.5;
+
+    } else if ( -0.15 <= degree && degree < -0.05){
+        return -7.5;
+
+    } else if ( -0.05 <= degree && degree < 0){
+        return -2.5;
+
+    } else if ( degree == 0){
+        return 0;
+
+    } else if ( 0 < degree && degree < 0.05){
+        return 2.5;
+
+    } else if ( 0.05 <= degree && degree < 0.15){
+        return 7.5;
+
+    } else if ( 0.15 <= degree && degree < 0.25){
+        return 12.5;
+
+    } else if ( 0.25 <= degree){
+        return 15;
+    }
+    printf("suspiscious\n");
+    return 0;
+}
+

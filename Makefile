@@ -49,7 +49,7 @@ INCLUDES = $(shell echo *.h)
 
 ############### Rules ###############
 
-all: ppmdiff arith
+all: ppmdiff arith bitpack
 
 
 ## Compile step (.c files -> .o files)
@@ -66,6 +66,10 @@ arith: driver.o a2plain.o uarray2.o compress40.o compression.o decompression.o
 
 ppmdiff: ppmdiff.o a2plain.o uarray2.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
+bitpack: testBitpack.o bitpack.o 
+	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
 
 
 clean:
