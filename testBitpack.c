@@ -2,6 +2,7 @@
 #include "assert.h"
 #include "bitpack.h"
 
+
 int main () {
     printf("testing bitpack\n");
 
@@ -17,6 +18,16 @@ int main () {
         printf("signed false\n");
     }
     
+    printf("\n\n\n");
+
+    //args: uint64_t word, unsigned width, unsigned lsb, uint64_t value
+    Bitpack_newu(12, 3, 4, 3);
+
+    printf("val (unsigned): %ld\n", Bitpack_getu(Bitpack_newu(12, 6, 4, 5), 6, 4));
+    
+    printf("val (signed): %ld\n", Bitpack_gets(Bitpack_news(12, 6, 4, -12), 6, 4));
+
+
 
     return 0;
 }
