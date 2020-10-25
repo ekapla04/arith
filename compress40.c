@@ -1,47 +1,54 @@
-#include "compress40.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "pnm.h"
+#include <stdbool.h>
+#include <string.h>
+
 #include "assert.h"
+#include "pnm.h"
 #include "a2methods.h"
 #include "a2plain.h"
-#include "stdbool.h"
-#include "string.h"
 
+#include "compress40.h"
 #include "compression.h"
 
 typedef struct closure {
     unsigned denominator;
-    char* operation;
-} closure;
+    A2Methods_UArray2 array;
+} *closure;
 
-unsigned DENOMINATOR = 0;
+
+/*
+Gustavo's notes:
+- CVS_array is storing the struct itself, not a pointer to the struct
+- Make sure storing pixmap correctly (when trimming)
+*/
+
 /* * * * * * * * * * Function declarations * * * * * * * * * * * */
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *dest_array);
 
 
-void RGB_to_VCS(int col, int row, A2Methods_UArray2 array2,
-                A2Methods_Object *ptr, void *VCS_array);
+void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
+                A2Methods_Object *ptr, void *cl_struct);
 
-Pnm_VCS convert_RGB(Pnm_rgb RGB);
+Pnm_CVS convert_RGB(Pnm_rgb RGB, unsigned denominator);
 
 
-void VCS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *vcs_elem, void *cl);
+void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *cvs_elem, void *cl);
 
-Pnm_rgb convert_VCS(Pnm_VCS VCS);
+Pnm_rgb convert_CVS(Pnm_CVS CVS);
 
 void free_array(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *vcs_elem, void *cl);
+                A2Methods_Object *cvs_elem, void *cl);
 
 void standardize_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *cl);
 
+void trim_image(Pnm_ppm pixmap, bool trim_width);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Pnm_ppm create_ppm(Pnm_ppm src_img);
-
 
 // void restore_RGB(int col, int row, A2Methods_UArray2 src_img,
 //                 A2Methods_Object *rgb_elem, void *cl);
@@ -67,72 +74,74 @@ extern void compress40(FILE *input)
     Pnm_ppm pixmap = Pnm_ppmread(input, methods);
     assert(pixmap && methods);
 
-    DENOMINATOR = pixmap->denominator;
+    int width = pixmap->width;
+    int height = pixmap->height;
 
     /* * * * * * * * * * * * * * trim image * * * * * * * * * * */
     if (pixmap->width % 2 != 0) { 
-        pixmap->width = pixmap->width - 1;
+        trim_image(pixmap, true);
+        //width = width - 1;
     }
     if (pixmap->height % 2 != 0) {
-        pixmap->height = pixmap->height - 1;
+        trim_image(pixmap, false);
+        //height = height - 1;
     }
+    //TODO: WHAT if the image is less than 2x2?
 
-    A2Methods_UArray2 square_array = methods->new(pixmap->width, pixmap->height,
+    A2Methods_UArray2 square_array = methods->new(width, height,
                                             sizeof(struct Pnm_rgb));
     
 
     methods->map_row_major(pixmap->pixels, copy_array, square_array);
-
     methods->free(&(pixmap->pixels));
+    //NOTE: change pixmap width and height?
     pixmap->pixels = square_array;
 
-    /* * * * * * * * * * * * standardize_RGB * * * * * * * * * * */
-    closure *cl = malloc(sizeof(struct closure));
+    printf("pixmap width: %d and height: %d\n", pixmap->width, pixmap->height);
+
+    /* * * * * * * * * * * * convert to CVS * * * * * * * * * * */
+    A2Methods_UArray2 CVS_array = methods->new(pixmap->width, pixmap->height,
+                                        sizeof(struct Pnm_CVS));
+
+    closure cl = malloc(sizeof(struct closure));
     cl->denominator = pixmap->denominator;
-    printf("denominator: %d\n", cl->denominator);
-    cl->operation = "/";
+    cl->array = CVS_array;
 
+printf("test1\n");
+    methods->map_row_major(pixmap->pixels, RGB_to_CVS, cl);
+printf("test2\n");
 
-    //need to eventually free this memory
-
-    // printf("************** STANDARDIZING ORIGINAL RGB VALUES **************\n");
-    //methods->map_row_major(pixmap->pixels, standardize_RGB, cl); 
-
-    // cl->operation = "*";
-    // methods->map_row_major(pixmap->pixels, standardize_RGB, cl);
-
-
-    /* * * * * * * * * * * * convert to VCS * * * * * * * * * * */
-    A2Methods_UArray2 VCS_array = methods->new(pixmap->width, pixmap->height,
-                                        sizeof(struct Pnm_VCS));
-
-
-    methods->map_row_major(pixmap->pixels, RGB_to_VCS, VCS_array);
     methods->free(&(pixmap->pixels));
-    pixmap->pixels = VCS_array;
+    pixmap->pixels = CVS_array;
 
     //Pnm_ppmwrite(stdout, pixmap); --> CAN't tell if it works from this line
+
     /* * * * * * * * * * * * * * REVERSION * * * * * * * * * * */
 
     // printf("\n     ---STARTING REVERSION---\n");
-    // //ONLY GETS THROUGH ONE ROUND BEFORE SEGFAULT!
+    // //NOTE: only for testing, will move to decompression function, and get 
+    // //       width and height from header
     // A2Methods_UArray2 square_array2 = methods->new(pixmap->width, pixmap->height,
     //                                     sizeof(struct Pnm_rgb));
 
-    // methods->map_row_major(pixmap->pixels, VCS_to_RGB, square_array2); 
+    // methods->map_row_major(pixmap->pixels, CVS_to_RGB, square_array2); 
     // methods->free(&(pixmap->pixels));
     // pixmap->pixels = square_array2;
 
     // printf("\nfinished reversion\n");
 
     /* * * * * * * * * * * * * * compress by block * * * * * * * * * * */
-    compress_by_block(VCS_array);
+    //compress_by_block(CVS_array);
 
 
     /////////////////////////////////////////////////////////
-    //methods->map_row_major(pixmap->pixels, free_array, NULL);  
+    methods->map_row_major(pixmap->pixels, free_array, NULL);  
     
-    Pnm_ppmfree(&pixmap);
+    //Pnm_ppmfree(&pixmap);
+}
+void trim_image(Pnm_ppm pixmap, bool trim_width)
+{
+
 }
 
 
@@ -161,92 +170,95 @@ extern void compress40(FILE *input)
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *dest_img)
 {
+
     (void)src_img;
+
     A2Methods_T methods = uarray2_methods_plain; 
     dest_img = (A2Methods_UArray2)dest_img;
+
     int width = methods->width(dest_img);
     int height = methods->height(dest_img);
     if (col < width && row < height){
+        printf("col: %d, width: %d, row: %d, height: %d\n", col, width, row, height);
         *((Pnm_rgb)methods->at(dest_img, col, row)) = *((Pnm_rgb)rgb_elem);        
     }
 }
 
-void RGB_to_VCS(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *rgb_elem, void *VCS_array)
+void RGB_to_CVS(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *rgb_elem, void *cl_struct)
 {
     (void)src_img;
-    // printf("\ncol: %d and row: %d\n", col, row);
+     printf("\ncol: %d and row: %d\n", col, row);
     
     A2Methods_T methods = uarray2_methods_plain; 
-    VCS_array = (A2Methods_UArray2)VCS_array;
+    A2Methods_UArray2 CVS_array = ((closure)cl_struct)->array;
+    unsigned denominator = ((closure)cl_struct)->denominator;
+    
+    
+    Pnm_CVS CVS_values = convert_RGB((Pnm_rgb)rgb_elem, denominator);
 
-    Pnm_VCS VCS_values = convert_RGB((Pnm_rgb)rgb_elem);
-
-    // Pnm_VCS *dest = (methods)->at(VCS_array, col, row);
+    // Pnm_CVS *dest = (methods)->at(CVS_array, col, row);
     // //(*dest)->Y = 5;
-    // *dest = *VCS_values; //TODO: investigate
+    // *dest = *CVS_values; //TODO: investigate
 
-    *((Pnm_VCS)methods->at(VCS_array, col, row)) = *((Pnm_VCS)VCS_values);
+    printf("check1\n");
+    *((Pnm_CVS)methods->at(CVS_array, col, row)) = *((Pnm_CVS)CVS_values);
 
 }
 
 
-Pnm_VCS convert_RGB(Pnm_rgb RGB)
+Pnm_CVS convert_RGB(Pnm_rgb RGB, unsigned denominator)
 {
-    //Pnm_VCS *VCS_values;
-    Pnm_VCS VCS_values = malloc(sizeof(struct Pnm_VCS)); 
+    //Pnm_CVS *CVS_values;
+    Pnm_CVS CVS_values = malloc(sizeof(struct Pnm_CVS)); 
 
-    float r = (float)RGB->red/DENOMINATOR;
-    float b = (float)RGB->blue/DENOMINATOR;
-    float g = (float)RGB->green/DENOMINATOR;
+    float r = (float)RGB->red/denominator;
+    float b = (float)RGB->blue/denominator;
+    float g = (float)RGB->green/denominator;
 
-    VCS_values->Y =  (0.299 * r) + (0.587 * g) + (0.114 * b);
+    CVS_values->Y =  (0.299 * r) + (0.587 * g) + (0.114 * b);
 
-    VCS_values->PB = (-0.168736 * r) - (0.331264 * g) +  (0.5 * b);
+    CVS_values->PB = (-0.168736 * r) - (0.331264 * g) +  (0.5 * b);
 
-    VCS_values->PR = (0.5 * r) - (0.418688 * g) - (0.081312 * b);
+    CVS_values->PR = (0.5 * r) - (0.418688 * g) - (0.081312 * b);
 
     // if (r != 0 || g != 0 || b != 0){
     //     printf("R: %f, G: %f, B: %f\n", r, g, b);
-    //     printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
+    //     printf("Y: %f, PB: %f, PR: %f\n",  CVS_values->Y,  CVS_values->PB,  CVS_values->PR);
     // }
 
-    return VCS_values;
+    return CVS_values;
 }
 
-//IN PROGRESS
-/* alternative at: *((Pnm_rgb)methods->at(RGB_array, col, row)) = *(Pnm_rgb)RGB_values;
-*/
-void VCS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *vcs_elem, void *RGB_array)
+
+void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
+                A2Methods_Object *cvs_elem, void *RGB_array)
 {
-/* src_img holds Pnm_VCS struct, cl/destination holds rgb struct */
+/* src_img holds Pnm_CVS struct, cl/destination holds rgb struct */
     (void)src_img;
     // fprintf(stderr, "\ncol: %d and row: %d\n", col, row);
 
     A2Methods_T methods = uarray2_methods_plain; 
     RGB_array = (A2Methods_UArray2)RGB_array;
 
-    Pnm_rgb RGB_values = convert_VCS((Pnm_VCS)vcs_elem);
+    Pnm_rgb RGB_values = convert_CVS((Pnm_CVS)cvs_elem);
     // fprintf(stderr, "r: %u, g: %u, b: %u\n", RGB_values->red, RGB_values->green, RGB_values->blue);
 
     Pnm_rgb *dest = methods->at(RGB_array, col, row);
-    // NOTE: THIS PRINT STATEMENT WAS CAUSING THE SEGFAULT!!!!!!!
-    //fprintf(stderr, "r: %u, g: %u, b: %u\n", (*dest)->red, (*dest)->green, (*dest)->blue);
     *dest = RGB_values; 
     
     //fprintf(stderr, "r: %u, g: %u, b: %u\n", (*dest)->red, (*dest)->green, (*dest)->blue);
 
 }
 
-//IN PROGRESS!
-Pnm_rgb convert_VCS(Pnm_VCS VCS)
+Pnm_rgb convert_CVS(Pnm_CVS CVS)
 {
     Pnm_rgb RGB_values = malloc(sizeof(struct Pnm_rgb));
 
-    float y = (float)VCS->Y*DENOMINATOR;
-    float pb = (float)VCS->PB*DENOMINATOR;
-    float pr = (float)VCS->PR*DENOMINATOR;
+    /* WE CHOOSE DENOMINATOR TO BE 255 */
+    float y = (float)CVS->Y*255;
+    float pb = (float)CVS->PB*255;
+    float pr = (float)CVS->PR*255;
 
     RGB_values->red = (1.0 * y) + (0.0 * pb) + (1.402 * pr);
     RGB_values->green = (1.0 * y) - (0.344136 * pb) - (0.714136 * pr);
@@ -257,7 +269,7 @@ Pnm_rgb convert_VCS(Pnm_VCS VCS)
     //         printf("Y: %f, PB: %f, PR: %f\n", y, pb, pr);
     // }
 
-    //printf("Y: %f, PB: %f, PR: %f\n",  VCS_values->Y,  VCS_values->PB,  VCS_values->PR);
+    //printf("Y: %f, PB: %f, PR: %f\n",  CVS_values->Y,  CVS_values->PB,  CVS_values->PR);
     return RGB_values;
 
     // TODO: Don't forget to free RGB values!
@@ -265,15 +277,39 @@ Pnm_rgb convert_VCS(Pnm_VCS VCS)
 
 
 void free_array(int col, int row, A2Methods_UArray2 src_img,
-                A2Methods_Object *vcs_elem, void *cl)
+                A2Methods_Object *cvs_elem, void *cl)
 {
     // (void)col;
     // (void)row;
     (void)src_img;
-    (void)cl;
-    printf("freeing %f at %d, %d\n", ((Pnm_VCS)vcs_elem)->Y, col, row);
-    free((Pnm_VCS)vcs_elem);
+    (void)cl; //NULL
+
+    A2Methods_T methods = uarray2_methods_plain; 
+
+    int width = methods->width(src_img);
+    int height = methods->height(src_img);
+    printf("width: %d, height: %d\n", width, height);
+    //if (col < width && row < height - 1){
+        printf("freeing %f at %d, %d\n", ((Pnm_CVS)cvs_elem)->Y, col, row);
+        free((Pnm_CVS)cvs_elem);
+    //}
 }
+
+/*
+
+    (void)src_img;
+
+    A2Methods_T methods = uarray2_methods_plain; 
+    dest_img = (A2Methods_UArray2)dest_img;
+
+    int width = methods->width(dest_img);
+    int height = methods->height(dest_img);
+    if (col < width && row < height){
+        printf("col: %d, width: %d, row: %d, height: %d\n", col, width, row, height);
+        *((Pnm_rgb)methods->at(dest_img, col, row)) = *((Pnm_rgb)rgb_elem);        
+    }
+
+*/
 
 
 
@@ -286,7 +322,7 @@ void free_array(int col, int row, A2Methods_UArray2 src_img,
 //     int width = src_img->width;
 //     int height = src_img->height;
 //     //int size = src_img->methods->size(src_img->pixels);
-//     int size = (int)sizeof(struct Pnm_VCS);
+//     int size = (int)sizeof(struct Pnm_CVS);
 
 //     Pnm_ppm final_image = malloc(sizeof(*final_image));
 //     assert(final_image != NULL);
