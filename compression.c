@@ -88,7 +88,7 @@ void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2,
 {
     float Y1 = pixel1.Y;
     float Y2 = pixel2.Y;
-    float Y3 = pixel3.Y;
+    float Y3 = pixel3.Y; 
     float Y4 = pixel4.Y;
     printf("(PRE DCT Y1: %f | Y2: %f | Y3: %f | Y4: %f)\n" , pixel1.Y, pixel2.Y,
                  pixel3.Y, pixel4.Y);
