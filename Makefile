@@ -62,7 +62,7 @@ all: ppmdiff arith bitpack
 ## Linking step (.o -> executable program)
 
 arith: 40image.o a2plain.o uarray2.o compress40.o compression.o decompression.o \
-	   bitpack.o
+	   bitpack.o imageIO.o transformRGB.o transformCVS.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 ppmdiff: ppmdiff.o a2plain.o uarray2.o

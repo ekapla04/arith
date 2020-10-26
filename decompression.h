@@ -10,10 +10,10 @@
 #include "a2plain.h"
 
 #include "compress40.h"
+#include "bitpack.h"
 
 #include "Pnm_CVS.h"
 #include "block_info.h"
-#include "bitpack.h"
 
 
 void unquantize_chroma(block_info block, Pnm_CVS);

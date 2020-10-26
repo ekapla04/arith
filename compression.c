@@ -1,17 +1,17 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <stdbool.h>
+// #include <string.h>
+// #include <stdint.h>
+// #include <math.h>
 
-#include "assert.h"
+// #include "assert.h"
 
-#include "a2methods.h"
-#include "a2plain.h"
-#include "pnm.h"
+// #include "a2methods.h"
+// #include "a2plain.h"
+// #include "pnm.h"
 
-#include "compress40.h"
+// #include "compress40.h"
 #include "compression.h"
 
 void print_word(uint64_t word);
@@ -147,18 +147,23 @@ void make_codeword(block_info block)
     if (Bitpack_fitsu(block.d, 5)) {
         word = Bitpack_newu(word, 5, 8, block.d);
     }
-    //printf("%ld\n", word);
+    // printf("my number is 0x%04x\n",word);
+    printf("word: %lx\n", word);
     print_word(word);
+    printf("\n");
     
 }
 
-//TODO: not working... must print out words byte-by-byte
+/* TODO: not working... must print out words byte-by-byte
+    - things being printed out byte by byte now but 
+      most values are 0??? seems wrong
+*/
 void print_word(uint64_t word)
 {
     //BIG ENDIAN ORDER, most significant byte first
     for (int i = 24; i >= 0; i -= 8){
-        printf("i: %d ", i);
-        printf("%c ", (char)Bitpack_getu(word, 8, i));
+        printf("i: %d", i);
+        printf(", value: 0x%hhx\n", (char)Bitpack_getu(word, 8, i));
         putchar(Bitpack_getu(word, 8, i));
     }
 }

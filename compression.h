@@ -8,9 +8,13 @@
 #include "a2methods.h"
 #include "a2plain.h"
 #include "arith40.h"
+#include "bitpack.h"
+#include <math.h>
 
 #include "decompression.h"
 #include "compress40.h"
+// #include "Pnm_CVS.h"
+// #include "block_info.h"
 
 void compress_by_block(A2Methods_UArray2 CVS_array);
 
