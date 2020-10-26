@@ -106,11 +106,8 @@ uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb,
     assert (width <= 64 && width + lsb <= 64); 
 
     if (!Bitpack_fitsu(value, width)) {
-        printf("NO! (unsigned)\n");
         RAISE(Bitpack_Overflow);  
     }
-
-    printf("fits\n");
 
     //make a mask to clear out existing elements in slot
     //take our int and shift it to the correct spot
@@ -129,13 +126,10 @@ uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb,  int64_t valu
     assert (width <= 64 && width + lsb <= 64); 
 
     if (!Bitpack_fitss(value, width)) {
-        printf("NO! (signed)\n");
         RAISE(Bitpack_Overflow);  
     }
-    printf("fits\n");
 
     if(value >= 0){
-        printf("POSITIVE NUMBER: %ld\n", value);
         return Bitpack_newu(word, width, lsb, value);
     }
 
