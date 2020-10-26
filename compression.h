@@ -22,3 +22,5 @@ void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2,
 
 int64_t quantize_degree_brightness(float degree);
 
+void make_codeword(block_info block);
+

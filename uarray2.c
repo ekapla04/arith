@@ -101,10 +101,11 @@ void UArray2_map_row_major(T array2,
         int h = array2->height;  /* keeping height and width in registers */
         int w = array2->width;   /* avoids extra memory traffic           */
         for (int j = 0; j < h; j++) {
-                /* don't want row/UArray_at in inner loop */
+            /* don't want row/UArray_at in inner loop */
                 UArray_T thisrow = row(array2, j); 
-                for (int i = 0; i < w; i++)
+                for (int i = 0; i < w; i++) {
                         apply(i, j, array2, UArray_at(thisrow, i), cl);
+                }
         }
 }
 #line 211 "www/solutions/uarray2.nw"

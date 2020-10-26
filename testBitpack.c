@@ -12,6 +12,12 @@ int main () {
         printf("unsigned false\n");
     }
 
+    if (Bitpack_fitss(5, 3)){
+        printf("unsigned true\n");
+    } else {
+        printf("unsigned false\n");
+    }
+
     if (Bitpack_fitss(-12, 5)){
         printf("signed true\n");
     } else {

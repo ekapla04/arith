@@ -30,10 +30,10 @@ void compress_by_block(A2Methods_UArray2 CVS_array)
         for (int col = 0; col < width; col += 2){
             printf("(%d, %d)\n", row, col);
 
-            Pnm_CVS pixel1 = methods->at(CVS_array, col, row);
-            Pnm_CVS pixel2 = methods->at(CVS_array, col + 1, row);
-            Pnm_CVS pixel3 = methods->at(CVS_array, col, row + 1);
-            Pnm_CVS pixel4 = methods->at(CVS_array, col + 1, row + 1);
+            Pnm_CVS pixel1 = *((Pnm_CVS *)methods->at(CVS_array, col, row));
+            Pnm_CVS pixel2 = *((Pnm_CVS *)methods->at(CVS_array, col + 1, row));
+            Pnm_CVS pixel3 = *((Pnm_CVS *)methods->at(CVS_array, col, row + 1));
+            Pnm_CVS pixel4 = *((Pnm_CVS *)methods->at(CVS_array, col + 1, row + 1));
 
 
             // lets make brightness ptrs to pixels at each location we want
@@ -47,12 +47,12 @@ void compress_by_block(A2Methods_UArray2 CVS_array)
 
             block_info block = quantize_chroma(pixel1, pixel2, pixel3, pixel4);
 
-            Pnm_CVS CVS = malloc(sizeof(struct Pnm_CVS)); // TODO: FREEE
+            // Pnm_CVS CVS = malloc(sizeof(struct Pnm_CVS)); // TODO: FREEE
 
             perform_DCT(pixel1, pixel2, pixel3, pixel4, block);
-            inverse_DCT(pixel1, pixel2, pixel3, pixel4, block);
+            // inverse_DCT(pixel1, pixel2, pixel3, pixel4, block);
 
-            unquantize_chroma(block, CVS); // TODO: FREE BLOCK_INFO STRUCT
+            // unquantize_chroma(block, CVS); // TODO: FREE BLOCK_INFO STRUCT
 
             printf("\n\n");
 
@@ -64,20 +64,21 @@ block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2,
                            Pnm_CVS pixel3, Pnm_CVS pixel4)
 {
 
-    float avg_PB = ((pixel1->PB + pixel2->PB + pixel3->PB + pixel4->PB)/4);
-    float avg_PR = ((pixel1->PR + pixel2->PR + pixel3->PR + pixel4->PR)/4);
+    float avg_PB = ((pixel1.PB + pixel2.PB + pixel3.PB + pixel4.PB)/4);
+    float avg_PR = ((pixel1.PR + pixel2.PR + pixel3.PR + pixel4.PR)/4);
     printf("AVG PR: %f, PB: %f\n", avg_PR, avg_PB);
 
-    block_info block = malloc(sizeof(struct block_info)); 
+    block_info block;
+    
     // NEED TO DELETE SPACE FOR THIS 
-    block->PR_4bit = Arith40_index_of_chroma(avg_PR);
-    block->PB_4bit = Arith40_index_of_chroma(avg_PB);
-    // printf("QUANT PR: %ld, PB: %ld\n", block->PR_4bit, block->PB_4bit);
+    block.PR_4bit = Arith40_index_of_chroma(avg_PR);
+    block.PB_4bit = Arith40_index_of_chroma(avg_PB);
+    // printf("QUANT PR: %ld, PB: %ld\n", block.PR_4bit, block.PB_4bit);
 
     
     // printf("(p1: %f, %f | p2: %f, %f | p3: %f, %f | p4: %f, %f)\n"
-    //          , pixel1->Y, pixel1->PB, pixel2->Y, pixel2->PB, 
-    //         pixel3->Y, pixel3->PB, pixel4->Y, pixel4->PB);
+    //          , pixel1.Y, pixel1.PB, pixel2.Y, pixel2.PB, 
+    //         pixel3.Y, pixel3.PB, pixel4.Y, pixel4.PB);
 
     return block;
 }
@@ -85,12 +86,12 @@ block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2,
 void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                  Pnm_CVS pixel3, Pnm_CVS pixel4, block_info block)
 {
-    float Y1 = pixel1->Y;
-    float Y2 = pixel2->Y;
-    float Y3 = pixel3->Y;
-    float Y4 = pixel4->Y;
-    printf("(PRE DCT Y1: %f | Y2: %f | Y3: %f | Y4: %f)\n" , pixel1->Y, pixel2->Y,
-                 pixel3->Y, pixel4->Y);
+    float Y1 = pixel1.Y;
+    float Y2 = pixel2.Y;
+    float Y3 = pixel3.Y;
+    float Y4 = pixel4.Y;
+    printf("(PRE DCT Y1: %f | Y2: %f | Y3: %f | Y4: %f)\n" , pixel1.Y, pixel2.Y,
+                 pixel3.Y, pixel4.Y);
 
     float a = (Y4 + Y3 + Y2 + Y1)/4.0;
     float b = (Y4 + Y3 - Y2 - Y1)/4.0;
@@ -99,15 +100,42 @@ void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2,
 
 
 //(uint64_T)
-    printf(" BEFORe quant: a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
+    printf(" BEFORE quant: a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
 
-    block->a = (a * 511); //Question: round?
-    block->b = quantize_degree_brightness(b);
-    block->c = quantize_degree_brightness(c);
-    block->d = quantize_degree_brightness(d);
+    block.a = (a * 511); //Question: round?
+    block.b = quantize_degree_brightness(b);
+    block.c = quantize_degree_brightness(c);
+    block.d = quantize_degree_brightness(d);
 
-    printf("\n AFTER quant: a: %lu, b: %ld, c: %ld, d: %ld\n", block->a, block->b, block->c, block->d);
+    make_codeword(block);
 
+    // printf("\n AFTER quant: a: %lu, b: %ld, c: %ld, d: %ld\n", block.a, block.b, block.c, block.d);
+
+    // a = (float)block.a/511;
+    // b = unquantize_degree_brightness(block.b);
+    // c = unquantize_degree_brightness(block.c);
+    // d = unquantize_degree_brightness(block.d);
+
+    // printf(" UN quant: a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
+
+}
+
+void make_codeword(block_info block)
+{
+    uint64_t word = 0;
+    if (Bitpack_fitss(block.a, 9)) {
+        word = Bitpack_newu(word, 9, 23, block.a);
+    }
+    if (Bitpack_fitsu(block.b, 5)) {
+        word = Bitpack_newu(word, 5, 18, block.b);
+    }
+    if (Bitpack_fitsu(block.c, 5)) {
+        word = Bitpack_newu(word, 5, 13, block.c);
+    }
+    if (Bitpack_fitsu(block.d, 5)) {
+        word = Bitpack_newu(word, 5, 8, block.d);
+    }
+    
 }
 
 int64_t quantize_degree_brightness(float degree)
@@ -139,7 +167,7 @@ int64_t quantize_degree_brightness(float degree)
     } else if ( 0.25 <= degree){
         return 15;
     }
-    printf("suspiscious\n");
+    // printf("suspiscious\n");
     return 0;
 }
 

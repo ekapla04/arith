@@ -61,7 +61,8 @@ all: ppmdiff arith bitpack
 
 ## Linking step (.o -> executable program)
 
-arith: driver.o a2plain.o uarray2.o compress40.o compression.o decompression.o
+arith: 40image.o a2plain.o uarray2.o compress40.o compression.o decompression.o \
+	   bitpack.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 ppmdiff: ppmdiff.o a2plain.o uarray2.o
@@ -69,8 +70,6 @@ ppmdiff: ppmdiff.o a2plain.o uarray2.o
 
 bitpack: testBitpack.o bitpack.o 
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
-
-
 
 clean:
 	rm -f ppmdiff *.o

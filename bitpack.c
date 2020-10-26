@@ -34,15 +34,15 @@ bool Bitpack_fitsu(uint64_t n, unsigned width)
     int int_range = pow(2, width);
 
 
-    printf("n: %ld\n", n);
-    printf("possible range: ");
-    for (int i = 0; i < int_range; i++){
-        printf("%d, ", i);
-    } 
-    printf("\n");
+    // printf("n: %ld\n", n);
+    // printf("possible range: ");
+    // for (int i = 0; i < int_range; i++){
+    //     printf("%d, ", i);
+    // } 
+    // printf("\n");
 
 
-    if (n < int_range){
+    if (n < (uint64_t)int_range){
         return true;
     } else {
         return false;
@@ -58,12 +58,12 @@ bool Bitpack_fitss(int64_t n, unsigned width)
     int start_pt = int_range / 2 * (-1);
 
 
-    printf("n: %ld\n", n);
-    printf("possible range: ");
-    for (int i = start_pt; i < start_pt + int_range; i++){
-        printf("%d, ", i);
-    } 
-    printf("\n");
+    // printf("n: %ld\n", n);
+    // printf("possible range: ");
+    // for (int i = start_pt; i < start_pt + int_range; i++){
+    //     printf("%d, ", i);
+    // } 
+    // printf("\n");
 
 
     if (n >= start_pt && n < start_pt + int_range){

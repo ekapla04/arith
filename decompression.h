@@ -13,6 +13,7 @@
 
 #include "Pnm_CVS.h"
 #include "block_info.h"
+#include "bitpack.h"
 
 
 void unquantize_chroma(block_info block, Pnm_CVS);
@@ -22,3 +23,5 @@ void unquantize_chroma(block_info block, Pnm_CVS);
 
 void inverse_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                  Pnm_CVS pixel3, Pnm_CVS pixel4, block_info block);
+
+float unquantize_degree_brightness(int64_t degree);

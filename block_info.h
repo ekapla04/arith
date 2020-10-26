@@ -7,4 +7,4 @@ typedef struct block_info {
     int64_t b;
     int64_t c;
     int64_t d;
-} *block_info;
+} block_info;
