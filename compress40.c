@@ -41,8 +41,6 @@ void trim_image(Pnm_ppm pixmap, int width, int height);
 
 void valid_dimensions(Pnm_ppm pixmap);
 
-
-
 extern void decompress40(FILE *input) 
 {
     unsigned height, width;
