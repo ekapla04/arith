@@ -1,17 +1,16 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                           transformCVS.h                             *
+*                              imageIO.c                               *
 *                                                                      * 
 *       Assignment: arith                                              *
 *       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
 *       Date: 10/26/2020                                               *
 *                                                                      *
 *       Summary                                                        *
-*           implementation of imageIO, functions pertaining to         *
-*           reading a ppm and formatting it to be suitable to          *
-*           bitpack                                                    *
+*           Handles initial reading of image                           *
+*           Populates pixmap, and trims the dimensions if the          *
+*           width or height are odd lengths                            *
 *                                                                      *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 #include "imageIO.h"
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

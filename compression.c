@@ -16,6 +16,13 @@
 
 #include "compression.h"
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    Functions in this file handle compression steps for 
+    2x2 blocks
+    Memory allocation : None
+     C.R.Es : C.R.E if pointers are null                                                
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 void compress_by_block(A2Methods_UArray2 CVS_array)
 {
     assert(CVS_array != NULL);

@@ -10,20 +10,7 @@
 *           on a high level                                            *
 *                                                                      *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-//ADD THIS TO IMAGE I/O FILE:
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                              imageIO.c                               *
-*                                                                      * 
-*       Assignment: arith                                              *
-*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
-*       Date: 10/26/2020                                               *
-*                                                                      *
-*       Summary                                                        *
-*           Handles initial reading of image                           *
-*           Populates pixmap, and trims the dimensions if the          *
-*           width or height are odd lengths                            *
-*                                                                      *
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -37,11 +24,19 @@
 #include "compress40.h"
 #include "transformCVS.h"
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    Main driver functions to run compression and decompression 
+    of a ppm
+    Memory allocation : None directly in this file
+    C.R.Es : None directly from this file                                              
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 extern void decompress40(FILE *input) 
 {
     Pnm_ppm pixmap = make_pixmap(input);
     A2Methods_UArray2 CVS_array = pixmap->methods->new(pixmap->width,
                                   pixmap->height, sizeof(Pnm_CVS));
+                                  
     read_codeword(CVS_array, input);
 
     pixmap->methods->map_row_major(CVS_array, CVS_to_RGB, pixmap->pixels);

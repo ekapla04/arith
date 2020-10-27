@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                           ImageIO.h                                  *
+*                           imageIO.h                                  *
 *                                                                      * 
 *       Assignment: arith                                              *
 *       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  

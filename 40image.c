@@ -9,8 +9,7 @@
 *           Handle user input: to compress or decompress an image,     *
 *                               appropriately handling                 *
 *                                invalid requests                      *
-*                                                                      *
-*                                                                      *
+*                                                                      * 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <string.h>

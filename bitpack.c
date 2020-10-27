@@ -19,7 +19,14 @@
 #include "except.h"
 #include "bitpack.h"
 
-Except_T Bitpack_Overflow = { "Overflow packing bits" }; //this is in the .h do I need to include it?
+Except_T Bitpack_Overflow = { "Overflow packing bits" };
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    Bitpack.c deals with making masks and shifting values to
+    effectively pack information into 32 bits
+    C.R.Es : C.R.E if bitpack overflow conditions met and 
+             value doesn't fit in width
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 uint64_t make_mask(unsigned width, unsigned lsb) 
 {
@@ -55,8 +62,9 @@ bool Bitpack_fitsu(uint64_t n, unsigned width)
     }
 }
 
-//2^num bits(width) = num ints that can be represented. Divide by 2 and * -1, 
-//get the starting point. If n exists in this range, return true, otherwise return false
+/* 2 to the power of width represenths the number of integers that can
+   be represented. To get the starting point, divide by 2 and multiply by 
+   negative 1. */ 
 bool Bitpack_fitss(int64_t n, unsigned width)
 {
     assert (width != 0 && width <= 64);
