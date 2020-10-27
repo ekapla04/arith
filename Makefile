@@ -49,7 +49,7 @@ INCLUDES = $(shell echo *.h)
 
 ############### Rules ###############
 
-all: ppmdiff arith bitpack
+all: ppmdiff arith bitpack test
 
 
 ## Compile step (.c files -> .o files)
@@ -69,6 +69,10 @@ ppmdiff: ppmdiff.o a2plain.o uarray2.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 bitpack: testBitpack.o bitpack.o 
+	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
+
+test: testCnD.o a2plain.o uarray2.o compress40.o compression.o decompression.o \
+	   bitpack.o imageIO.o transformRGB.o transformCVS.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 clean:

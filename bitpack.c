@@ -1,4 +1,16 @@
-#include <stdio.h>
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+*                           bitpack.c
+*                               
+*       Assignment: arith
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
+*       Date: 10/26/2020
+*
+*       Summary
+*           implementation of bitpack.h
+*           All functions one might need to bitpack -- i.e. encode
+*           values into a signed or unsigned integer
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "assert.h"
@@ -8,10 +20,14 @@
 Except_T Bitpack_Overflow = { "Overflow packing bits" }; //this is in the .h do I need to include it?
 
 uint64_t make_mask(unsigned width, unsigned lsb){
-    uint64_t mask_h = ~(0), mask_l = ~(0); //64 bits just 1s
-    mask_h = mask_h << (64 - (width + lsb));
-    mask_l = mask_l >> lsb;
-    return mask_l & mask_h;
+    // uint64_t mask_h = ~(0), mask_l = ~(0); //64 bits just 1s
+    // mask_h = mask_h >> (64 - (width + lsb));
+    // mask_l = mask_l << lsb;
+    // return mask_l & mask_h;
+    uint64_t mask = ~0;
+    mask = mask >> (64 - width);
+    mask = mask << lsb;
+    return ~mask;
 }
 
 /*
@@ -95,15 +111,14 @@ int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
     word = (int64_t)word << (64 - (width + lsb));
     word = (int64_t)word >> (64 - width);
     
-    printf("word: %ld\n", word);
-
     return word;
 }
 
 uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, 
                                                     uint64_t value)
 {
-    assert (width <= 64 && width + lsb <= 64); 
+    assert (width + lsb <= 64 && width > 0); 
+    // printf("value: %lu, width: %u\n", value, width);
 
     if (!Bitpack_fitsu(value, width)) {
         RAISE(Bitpack_Overflow);  
@@ -123,26 +138,31 @@ uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb,
 
 uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb,  int64_t value)
 {
-    assert (width <= 64 && width + lsb <= 64); 
+    assert (width > 0 && width + lsb <= 64); //TODO: add a check, ensure width > 0
 
     if (!Bitpack_fitss(value, width)) {
         RAISE(Bitpack_Overflow);  
     }
 
-    if(value >= 0){
+    if (value >= 0){
         return Bitpack_newu(word, width, lsb, value);
     }
-
     uint64_t mask = make_mask(width, lsb);
     word = word & mask;
+    //printf("LSB: %u ||  WORD: %lu\n", lsb, word);
 
-    uint64_t neg_bit_mask = make_mask(1, lsb);
-    neg_bit_mask = neg_bit_mask << (width - 1);
+    // uint64_t leading_1s = make_mask(64 - (width + lsb), 0);
+    uint64_t leading_1s = ~0;
+    leading_1s = leading_1s >> (64 - (width));
 
-    word = word & neg_bit_mask;
+    value = value & leading_1s;
 
-    value = (uint64_t)value;
     value = value << lsb;
+
+    // uint64_t neg_bit_mask = make_mask(1, lsb);
+    // neg_bit_mask = neg_bit_mask << (width - 1);
+
+    // value = value & neg_bit_mask;
 
     return (word | value);
 

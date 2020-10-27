@@ -18,4 +18,6 @@ void convert_to_CVS(Pnm_ppm pixmap);
 void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
                 A2Methods_Object *ptr, void *cl_struct);
 
-Pnm_CVS make_CVS(Pnm_rgb RGB, unsigned denominator);
+Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
+
+float round_f(float to_round, float low, float high);

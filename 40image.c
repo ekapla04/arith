@@ -1,3 +1,15 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+*                               40image.c
+*                               
+*       Assignment: arith
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
+*       Date: 10/26/2020
+*
+*       Summary
+*           Handle user input: compression, decompression, or error? 
+                               standard input or file?
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

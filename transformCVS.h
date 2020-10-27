@@ -15,4 +15,6 @@
 void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *cvs_elem, void *cl);
 
-Pnm_rgb make_RGB(Pnm_CVS CVS);
+struct Pnm_rgb make_RGB(Pnm_CVS CVS);
+
+float round2(float to_round, float low, float high);

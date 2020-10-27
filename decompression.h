@@ -1,7 +1,19 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+*                           decompression.h
+*                               
+*       Assignment: arith
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
+*       Date: 10/26/2020
+*
+*       Summary
+*           interface of decompression.c
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #include "assert.h"
 #include "pnm.h"
@@ -16,12 +28,24 @@
 #include "block_info.h"
 
 
-void unquantize_chroma(block_info block, Pnm_CVS);
-// give it quantized values
-// get unquantizes values
-// return average values --> save them for 2x2 block
 
-void inverse_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
-                 Pnm_CVS pixel3, Pnm_CVS pixel4, block_info block);
+Pnm_CVS unquantize_chroma(block_info *block);
+
+void inverse_DCT(Pnm_CVS *pixel1, Pnm_CVS *pixel2, 
+                 Pnm_CVS *pixel3, Pnm_CVS *pixel4, block_info *block);
 
 float unquantize_degree_brightness(int64_t degree);
+
+void unpack_codeword(uint64_t word, int row, int col, 
+                    A2Methods_UArray2 CVS_array);
+
+void unquantize_values(Pnm_CVS *pixel1, Pnm_CVS *pixel2, 
+                 Pnm_CVS *pixel3, Pnm_CVS *pixel4, block_info *block);
+
+void unquantize_abcd(block_info *block);
+
+void place_pixels(Pnm_CVS pixel1, Pnm_CVS pixel2, Pnm_CVS pixel3, 
+                Pnm_CVS pixel4, A2Methods_UArray2 CVS_array, int col, int row);
+
+void printPixel(Pnm_CVS CVS, int row, int col);
+
