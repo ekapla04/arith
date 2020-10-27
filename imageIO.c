@@ -1,12 +1,35 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                           transformCVS.h                             *
+*                                                                      * 
+*       Assignment: arith                                              *
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
+*       Date: 10/26/2020                                               *
+*                                                                      *
+*       Summary                                                        *
+*           implementation of imageIO, functions pertaining to         *
+*           reading a ppm and formatting it to be suitable to          *
+*           bitpack                                                    *
+*                                                                      *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include "imageIO.h"
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    Functions in this file help to format a newly read ppm
+    Memory allocation : memory allocated for new pixmap, arrays, and
+                      methods
+     C.R.Es : C.R.E if dynamically allocated memory is NULL or ppm is
+              incorrectly formatted                                                 
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/* Main driver for formatting pixmap */
 Pnm_ppm read_pixmap(FILE *input)
 {
     A2Methods_T methods = uarray2_methods_plain; 
 
+    assert(input != NULL && pixmap != NULL && methods != NULL);
+
     Pnm_ppm pixmap = Pnm_ppmread(input, methods);
-    assert(pixmap && methods);
 
     valid_dimensions(pixmap);
 
@@ -52,7 +75,7 @@ void trim_image(Pnm_ppm pixmap, int width, int height)
 void copy_array(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *dest_img)
 {
-
+    assert(rgb_elem != NULL && dest_img != NULL);
     (void)src_img;
 
     A2Methods_T methods = uarray2_methods_plain; 
