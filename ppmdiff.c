@@ -20,11 +20,11 @@ int main(int argc, char *argv[])
             printf("incorrect num arguments\n");
             exit(1);
         } else {
-            if (strcmp(argv[1], "-") == 0 && strcmp(argv[2], "-") != 0){
+            if (strcmp(argv[1], "-") == 0 && strcmp(argv[2], "-") != 0) {
                 image1 = process_file(stdin);
                 image2 = process_file(fopen(argv[2], "r"));
             }
-            else if (strcmp(argv[1], "-") != 0 && strcmp(argv[2], "-") == 0){
+            else if (strcmp(argv[1], "-") != 0 && strcmp(argv[2], "-") == 0) {
                 image1 = process_file(fopen(argv[1], "r"));
                 image2 = process_file(stdin);
             }
@@ -56,7 +56,7 @@ extern Pnm_ppm process_file(FILE *fp){
 }
 
 extern bool compare_images(Pnm_ppm image1, Pnm_ppm image2){
-    if ((image1->width - image2->width) > 1)  {
+    if ((image1->width - image2->width) > 1) {
         fprintf(stderr, "image widths differ by more than 1 \n");
         printf("1.0\n");
         return false;
@@ -69,30 +69,23 @@ extern bool compare_images(Pnm_ppm image1, Pnm_ppm image2){
     return true;
 }
 
-extern float calculate_diff(Pnm_ppm image1, Pnm_ppm image2){
+extern float calculate_diff(Pnm_ppm image1, Pnm_ppm image2)
+{
     float red, green, blue, color_sum = 0;
-    for (unsigned int i = 0; i < image1->width; i++)
-    {
-        for (unsigned int j = 0; j < image1->height; j++)
-        {
+    for (unsigned int i = 0; i < image1->width; i++) {
+        for (unsigned int j = 0; j < image1->height; j++) {
             Pnm_rgb colors1 = image1->methods->at(image1->pixels, i, j);
             Pnm_rgb colors2 = image2->methods->at(image2->pixels, i, j);
             red = ((float)colors1->red - (float)colors2->red);
             green = ((float)colors1->green - (float)colors2->green);
             blue = ((float)colors1->blue - (float)colors2->blue);
-            // printf("color1: % \ncolor2: %f\n", colors1->blue, colors2->blue);
-            // printf("red: %0.4f\n", red);
-            // printf("green: %0.4f\n", green);
-            printf("blue: %0.4f\n", blue);
             color_sum += (red * red) + (green * green) + (blue * blue);
-            printf("color sum: %0.4f\n", color_sum); 
         }  
     }
     
     color_sum = (color_sum / (3 * image1->width * image1->height));
     color_sum = sqrt(color_sum);
     color_sum = color_sum/100;
-
 
     return color_sum;
 }

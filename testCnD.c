@@ -16,27 +16,21 @@
 
 void check_bounds(Pnm_rgb RGB){
 
-    if(RGB->red < 0){
-        printf("1!!!!\n");
+    if(RGB->red < 0) {
         RGB->red = 0;
-    } else if (RGB->green < 0){
-        printf("2!!!!\n");
+    } else if (RGB->green < 0) {
         RGB->green = 0;
-    } else if (RGB->blue < 0){
-        printf("3!!!!\n");
+    } else if (RGB->blue < 0) {
         RGB->blue = 0;
     }
 
     //greater than the denominator
-    if(RGB->red > 255){
-        printf("4!!!!\n");
+    if(RGB->red > 255) {
         RGB->red = 255;
-    } else if (RGB->green > 255){
-        printf("5!!!!\n");        
+    } else if (RGB->green > 255) {        
         RGB->green = 255;
-    } else if (RGB->blue > 255){
+    } else if (RGB->blue > 255) {
         RGB->blue = 255;
-        printf("6!!!!\n");
     }
 }
 

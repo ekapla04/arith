@@ -1,3 +1,16 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                           transformRGB.h                             *
+*                                                                      * 
+*       Assignment: arith                                              *
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
+*       Date: 10/26/2020                                               *
+*                                                                      *
+*       Summary                                                        *
+*           interface of transformRGB.c                                *
+*                                                                      *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -20,4 +33,4 @@ void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
 
 Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
 
-float round_f(float to_round, float low, float high);
+long double round_f(long double to_round, long double low, long double high);

@@ -1,14 +1,16 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*                           decompression.h
-*                               
-*       Assignment: arith
-*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
-*       Date: 10/26/2020
-*
-*       Summary
-*           interface of decompression.c
-*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                           decompression.h                            *
+*                                                                      * 
+*       Assignment: arith                                              *
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
+*       Date: 10/26/2020                                               *
+*                                                                      *
+*       Summary                                                        *
+*           interface of decompression.c                               *
+*                                                                      *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -27,14 +29,18 @@
 #include "Pnm_CVS.h"
 #include "block_info.h"
 
+long double rounder(long double to_round, long double low, long double high);
 
+Pnm_ppm make_pixmap(FILE *input);
+
+void read_codeword(A2Methods_UArray2 CVS_array, FILE *input); 
 
 Pnm_CVS unquantize_chroma(block_info *block);
 
 void inverse_DCT(Pnm_CVS *pixel1, Pnm_CVS *pixel2, 
                  Pnm_CVS *pixel3, Pnm_CVS *pixel4, block_info *block);
 
-float unquantize_degree_brightness(int64_t degree);
+long double unquantize_degree_brightness(int64_t degree);
 
 void unpack_codeword(uint64_t word, int row, int col, 
                     A2Methods_UArray2 CVS_array);

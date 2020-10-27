@@ -1,15 +1,18 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*                               40image.c
-*                               
-*       Assignment: arith
-*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
-*       Date: 10/26/2020
-*
-*       Summary
-*           Handle user input: compression, decompression, or error? 
-                               standard input or file?
-*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                           40image.c                                  *
+*                                                                      * 
+*       Assignment: arith                                              *
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
+*       Date: 10/26/2020                                               *
+*                                                                      *
+*       Summary                                                        *
+*           Handle user input: to compress or decompress an image,     *
+*                               appropriately handling                 *
+*                                invalid requests                      *
+*                                                                      *
+*                                                                      *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

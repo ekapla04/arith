@@ -1,24 +1,27 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*                           transformRGB.c
-*                               
-*       Assignment: arith
-*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
-*       Date: 10/26/2020
-*
-*       Summary
-*           All functions needed to transform an RGB array to one
-*           full of corresponding Pnm_CVS structs 
-*
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                           transformRGB.c                             *
+*                                                                      * 
+*       Assignment: arith                                              *
+*       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)  *  
+*       Date: 10/26/2020                                               *
+*                                                                      *
+*       Summary                                                        *
+*           All functions needed to transform an RGB array to one      *
+*           full of corresponding Pnm_CVS structs                      *
+*                                                                      *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 #include "transformRGB.h"
 
-float round_f(float to_round, float low, float high){
+long double round_f(long double to_round, long double low, long double high){
+    // printf("to round: %Lf, low: %Lf, high: %Lf\n", to_round, low, high);
     if (to_round < low){
         to_round = low;
     } else if (to_round > high){
         to_round = high;
     }
-
+    // printf("rounded: %Lf\n", to_round);
     return to_round;
 }
 
@@ -54,24 +57,25 @@ void RGB_to_CVS(int col, int row, A2Methods_UArray2 src_img,
     // printf("CVS values - Y: %f, PB: %f, PR: %f \n", CVS_values.Y, CVS_values.PB, CVS_values.PR);
 
 }
+// use long double
 
 Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator)
 {
     Pnm_CVS CVS_values; 
 
-    float r = (float)RGB.red;
-    float b = (float)RGB.blue;
-    float g = (float)RGB.green;
+    long double r = (long double)RGB.red;
+    long double b = (long double)RGB.blue;
+    long double g = (long double)RGB.green;
 
-    CVS_values.Y =  ((0.299 * r) + (0.587 * g) + (0.114 * b))/denominator;
-    CVS_values.PB = ((-0.168736 * r) - (0.331264 * g) +  (0.5 * b))/denominator;
-    CVS_values.PR = ((0.5 * r) - (0.418688 * g) - (0.081312 * b))/denominator;
+    CVS_values.Y =  ((0.299 * r) + (0.587 * g) + (0.114 * b)) / denominator;
+    CVS_values.PB = ((-0.168736 * r) - (0.331264 * g) +  (0.5 * b)) / denominator;
+    CVS_values.PR = ((0.5 * r) - (0.418688 * g) - (0.081312 * b)) / denominator;
 
     // printf("MAKE CVS, from R: %f, G: %f, B: %f ---> ", r, g, b);
-    // printf("Y: %f, PB: %f, PR: %f\n", CVS_values.Y, CVS_values.PB, CVS_values.PR);
     
     CVS_values.Y = round_f(CVS_values.Y, 0, 1);
     CVS_values.PB = round_f(CVS_values.PB, -0.5, 0.5);
     CVS_values.PR = round_f(CVS_values.PR, -0.5, 0.5);
+    printf("intitalizing CVS values Y: %Lf, PB: %Lf, PR: %Lf\n", CVS_values.Y, CVS_values.PB, CVS_values.PR);
     return CVS_values;
 }

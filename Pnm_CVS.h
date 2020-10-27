@@ -1,5 +1,5 @@
 typedef struct Pnm_CVS {
-    float Y;
-    float PB;
-    float PR;
+    long double Y;
+    long double PB;
+    long double PR;
 } Pnm_CVS; 

@@ -60,7 +60,7 @@ void copy_array(int col, int row, A2Methods_UArray2 src_img,
 
     int width = methods->width(dest_img);
     int height = methods->height(dest_img);
-    if (col < width && row < height){
+    if (col < width && row < height) {
         *((Pnm_rgb *)methods->at(dest_img, col, row)) = *((Pnm_rgb *)rgb_elem);        
     }
 }
