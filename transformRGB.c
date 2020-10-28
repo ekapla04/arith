@@ -14,11 +14,18 @@
 
 #include "transformRGB.h"
 
-/* * * * * * * * private function declarations * * * * * * * * */
+/* * * * * * * * * * * * * private members * * * * * * * * * * */
 Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
 
 void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
                 A2Methods_Object *ptr, void *cl_struct);
+
+/* struct used to pass in two parameters in the closure */
+typedef struct closure {
+    unsigned denominator;
+    A2Methods_UArray2 array;
+} closure;
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 

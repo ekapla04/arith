@@ -22,7 +22,7 @@
 #include "arith40.h"
 
 #include "imageIO.h"
-#include "compress40.h" //WHY?
+#include "compress40.h"
 
 
 /* 

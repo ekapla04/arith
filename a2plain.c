@@ -29,20 +29,20 @@ static A2Methods_UArray2 new_with_blocksize(int width, int height, int size,
 
 static void a2free(A2Methods_UArray2 * array2p)
 {
-	UArray2_free((UArray2_T *) array2p);
+        UArray2_free((UArray2_T *) array2p);
 }
 
 static int width(A2Methods_UArray2 array2)
 {
-	return UArray2_width(array2);
+        return UArray2_width(array2);
 }
 static int height(A2Methods_UArray2 array2)
 {
-	return UArray2_height(array2);
+        return UArray2_height(array2);
 }
 static int size(A2Methods_UArray2 array2)
 {
-	return UArray2_size(array2);
+        return UArray2_size(array2);
 }
 static int blocksize(A2Methods_UArray2 array2)
 {
@@ -52,7 +52,7 @@ static int blocksize(A2Methods_UArray2 array2)
 
 static A2Methods_Object *at(A2Methods_UArray2 array2, int i, int j)
 {
-	return UArray2_at(array2, i, j);
+        return UArray2_at(array2, i, j);
 }
 
 static void map_row_major(A2Methods_UArray2 uarray2,
@@ -105,11 +105,11 @@ static struct A2Methods_T uarray2_methods_plain_struct = {
     new,
     new_with_blocksize,
     a2free,
-	width,
-	height,
-	size,
-	blocksize,
-	at,
+        width,
+        height,
+        size,
+        blocksize,
+        at,
     map_row_major,
     map_col_major,
     NULL,

@@ -24,7 +24,6 @@
 
 #include "compression.h"
 #include "compress40.h"
-#include "closure_struct.h"
 
 /* 
  * Purpose: Take the given pixmap full of Pnm_rgb structs and call
