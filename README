@@ -7,7 +7,7 @@
 
        Architecture:
             40image.c - driver for program as a whole
-            a2plain.c - UArray2 implementation
+            a2plain.c - polymorphic interface for uarray2
             bitpack.c - implementation of bitpack interface, 
                         packs info into a codeword
             block_info.h - holds block struct containing 
@@ -28,6 +28,7 @@
             transformCVS.h - interface of transformCVS.c
             transformRGB.c - converts RGB values to CVS values
             transformRGB.h - interface of transformRGB.c
+            uarray2.c - implementation of an unboxed 2d array
 
     Acknowledgements:
         We recieved help from numerous TAs figuring out a memory issue

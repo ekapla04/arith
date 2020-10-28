@@ -11,6 +11,7 @@
 *               Y: brightness (between 0 and 1)                        *
 *               PB & PR: color-difference signals                      *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 typedef struct Pnm_CVS {
     long double Y;
     long double PB;
