@@ -14,16 +14,6 @@
 
 #include "transformCVS.h"
 
-long double round2(long double to_round, long double low, long double high)
-{
-    if (to_round < low) {
-        to_round = low;
-    } else if (to_round > high) {
-        to_round = high;
-    }
-    return to_round;
-}
-
 void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *cvs_elem, void *RGB_array)
 {
@@ -52,9 +42,9 @@ struct Pnm_rgb make_RGB(Pnm_CVS CVS)
     green = (1.0 * y) - (0.344136 * pb) - (0.714136 * pr);
     blue = (1.0 * y) + (1.772 * pb) + (0.0 * pr);
 
-    RGB_values.red = round(round_f(red, 0, 1) * 255);
-    RGB_values.green = round(round_f(green, 0, 1) * 255);
-    RGB_values.blue = round(round_f(blue, 0, 1) * 255);
+    RGB_values.red = round(range_check(red, 0, 1) * 255);
+    RGB_values.green = round(range_check(green, 0, 1) * 255);
+    RGB_values.blue = round(range_check(blue, 0, 1) * 255);
 
     return RGB_values;
 

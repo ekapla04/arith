@@ -26,11 +26,16 @@
 #include "compress40.h"
 #include "closure_struct.h"
 
+/* 
+ * Purpose: Take the given pixmap full of Pnm_rgb structs and call
+ *          helper function to create CVS array and populate it with 
+ *          Pnm_CVS structs corresponding to the Pnm_rgb struct in the 
+ *          pixmap. 
+ * Arguments: Pnm_ppm pixmap
+ * Returns: None (void)
+ * Mem alloc: helper function allocates space for CVS_array, which 
+ *            replaces the pixmap->pixels after freeing pixmap->pixels
+ * C.R.E.:  raised if pixmap is NULL
+ */
 void convert_to_CVS(Pnm_ppm pixmap);
 
-void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
-                A2Methods_Object *ptr, void *cl_struct);
-
-Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
-
-long double round_f(long double to_round, long double low, long double high);

@@ -29,33 +29,37 @@
 #include "Pnm_CVS.h"
 #include "block_info.h"
 
-/* Purpose : 
- * Arguments : A Pnm_ppm struct of the original image, a mapping function and 
- *             the degrees of rotation requested by the client.
- * Returns : A Pnm_ppm struct containing the rotated image.
- * Notes : Assert that the Pnm_ppm and A2Methods_mapfun is not NULL
- * Memory allocation : 
- * C.R.Es : 
+
+/* 
+ * Purpose: Read file into ppm with dimensions from the header in the given 
+ *          file. Prepare ppm to be decompressed by ensuring
+ *          usable pixmap dimensions
+ * Arguments: File pointer
+ * Returns: The created pixmap
+ * Mem alloc: For a 2d array storing Pnm_rgb structs
+ * C.R.E.: if any of the following are NULL - the file pointer 
+ *          passed to the function, the pixmap or the 2d array
  */
-
-long double rounder(long double to_round, long double low, long double high);
-
 Pnm_ppm make_pixmap(FILE *input);
 
+/* 
+ * Purpose: Read from the file, collecting information byte-by-byte 
+ *          and grouping them into 32-bit sequences (words), calls 
+ *          unpack_codeword to fill CVS array with the data
+ * Arguments: Array holding Pnm_CVS structs, file pointer
+ * Returns: None (void)
+ * Mem alloc: none
+ * C.R.E.:  //TODO
+ */
 void read_codeword(A2Methods_UArray2 CVS_array, FILE *input); 
 
-Pnm_CVS unquantize_chroma(block_info *block);
-
-void inverse_DCT(Pnm_CVS *pixel1, Pnm_CVS *pixel2, 
-                 Pnm_CVS *pixel3, Pnm_CVS *pixel4, block_info *block);
-
-long double unquantize_degree_brightness(int64_t degree);
-
-void unpack_codeword(uint64_t word, int row, int col, 
-                    A2Methods_UArray2 CVS_array);
-
-void unquantize_values(Pnm_CVS *pixel1, Pnm_CVS *pixel2, 
-                 Pnm_CVS *pixel3, Pnm_CVS *pixel4, block_info *block);
-
-void place_pixels(Pnm_CVS pixel1, Pnm_CVS pixel2, Pnm_CVS pixel3, 
-                Pnm_CVS pixel4, A2Methods_UArray2 CVS_array, int col, int row);
+/* 
+ * Purpose: Take given values, and check if the given value (to_round)
+ *          is in the range from the arg low to the arg high. If the value 
+ *          is out of bounds, return either the lower or upper bound 
+ *          (whichever is closer). Otherwise return the value itself.
+ * Returns: None (void)
+ * Mem alloc: none
+ * C.R.E.: None
+ */
+long double range_check(long double to_round, long double low, long double high);

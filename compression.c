@@ -16,13 +16,22 @@
 
 #include "compression.h"
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-    Functions in this file handle compression steps for 
-    2x2 blocks
-    Memory allocation : None
-     C.R.Es : C.R.E if pointers are null                                                
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/* * * * * * * * private function declarations * * * * * * * * */
+block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                           Pnm_CVS pixel3, Pnm_CVS pixel4);
+
+void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
+                       Pnm_CVS pixel3, Pnm_CVS pixel4, block_info *block);
+
+int64_t quantize_degree_brightness(long double degree);
+
+void make_codeword(block_info block);
+
+void print_word(uint64_t word);
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* Driver function for block-by-block compression */
 void compress_by_block(A2Methods_UArray2 CVS_array)
 {
     assert(CVS_array != NULL);
@@ -55,7 +64,14 @@ void compress_by_block(A2Methods_UArray2 CVS_array)
     }
 }
 
-/* Steps 1 & 2 -- Average PB and PR, then make them packables */
+/*
+* Purpose: Average PB and PR, then make them packables (4bit quantized values)
+*           and store them in a new block_info struct
+* Arguments: four pixels (Pnm_CVS structs)
+* Returns: block_info struct
+* Mem alloc: none
+* C.R.E.: none
+*/
 block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                            Pnm_CVS pixel3, Pnm_CVS pixel4)
 {
@@ -70,7 +86,15 @@ block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2,
     return block;
 }
 
-/* Steps 3 & 4 -- Quantize Y1, Y2, Y3, Y4 and make them packables*/
+
+/*
+* Purpose: Quantize Y1, Y2, Y3, Y4 and make them packables (5bit values)
+* Arguments: four pixels (Pnm_CVS structs) and block_info struct, passed by 
+*            reference
+* Returns: None (void)
+* Mem alloc: none
+* C.R.E.: if block_info struct is NULL
+*/
 void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                  Pnm_CVS pixel3, Pnm_CVS pixel4, block_info *block)
 {
@@ -86,14 +110,14 @@ void perform_DCT(Pnm_CVS pixel1, Pnm_CVS pixel2,
     long double c = (Y4 - Y3 + Y2 - Y1) / 4.0;
     long double d = (Y4 - Y3 - Y2 + Y1) / 4.0;
 
-    block->a = round(a * 511);
+    block->a = round(a * A_FACTOR);
     block->b = quantize_degree_brightness(b);
     block->c = quantize_degree_brightness(c);
     block->d = quantize_degree_brightness(d);
 
 }
 
-
+/* perform_DCT helper function, map values from (-0.3, 0.3) to (-15, 15) */
 int64_t quantize_degree_brightness(long double degree)
 {
     int64_t rounded = round(degree * SCALE_FACTOR);
@@ -108,6 +132,14 @@ int64_t quantize_degree_brightness(long double degree)
 }
 
 /* Steps 5 & 6 -- pack into code words and print */
+/*
+* Purpose: Pack int values into one unsigned integer and call printing function
+* Arguments: block_info struct
+* Returns: None (void)
+* Mem alloc: none
+* C.R.E.: none
+* NOTE: calls printing function to print the bitpacked unsigned integer
+*/
 void make_codeword(block_info block)
 {
     uint64_t word = 0;
@@ -134,6 +166,14 @@ void make_codeword(block_info block)
     
 }
 
+/*
+* Purpose: print bitpacked unsigned integer byte-by-byte
+* Arguments: bitpacked unsigned integer
+* Returns: None (void)
+* Mem alloc: none
+* C.R.E.: none
+* NOTE: prints to standard out
+*/
 void print_word(uint64_t word)
 {
     for (int i = 24; i >= 0; i -= 8) {
