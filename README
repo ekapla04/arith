@@ -1,0 +1,54 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+                                  README                                    
+                                                                       
+       Assignment: arith                                              
+       Authors: Emily Gjertsson (egjert01) & Elise Kaplan (ekapla04)    
+       Date: 10/26/2020  
+
+       Architecture:
+            40image.c - driver for program as a whole
+            a2plain.c - UArray2 implementation
+            bitpack.c - implementation of bitpack interface, 
+                        packs info into a codeword
+            block_info.h - holds block struct containing 
+                           quantized information
+            compress40.c - high up implementation of compression
+            compression.c - compresses information of a 2x2 block into 
+                            a codeword
+            compression.h - interface of compression.c
+            decompression.c - decompresses information of a 2x2 block
+                              stored in a codeword
+            decompression.h - interface of decompression.c
+            imageIO.c - handles reading in a ppm
+            imageIO.h - interface of imageIO.c
+            Pnm_CVS.h - struct holding component video color space 
+                        values
+            ppmdiff.c - checks the percent difference between two images
+            transformCVS.c - converts CVS values to RGB values
+            transformCVS.h - interface of transformCVS.c
+            transformRGB.c - converts RGB values to CVS values
+            transformRGB.h - interface of transformRGB.c
+
+    Acknowledgements:
+        We recieved help from numerous TAs figuring out a memory issue
+        surrounding struct pointers versus structs themselves and freeing 
+        that memory. 
+
+    Implementation:
+        Overall, our program functions properly to compress and decompress
+        a ppm image. That being said, we are unsure of the behavior of our 
+        program if given an abnormal codeword or if fgetc hits eof 
+        before we're done reading in values. We believe our bitpack 
+        implementation takes care of it but aren't entirely confident.
+        Another weakness in our program is the percent difference between
+        input ppm and output ppm using our ppmdiff program. For large 
+        images our program yields about a 7.5% difference. We believe this
+        is due to lost precision in transformation and compression of Y 
+        values, but were unable to track down a specific source of this 
+        discrepancy. 
+    
+    Assignment:
+        This assignment took us approximately 10 hours to analyze and 30 
+        hours to solve. 
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
