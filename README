@@ -21,6 +21,7 @@
             decompression.h - interface of decompression.c
             imageIO.c - handles reading in a ppm
             imageIO.h - interface of imageIO.c
+            Makefile - Makefile for arith, ppmdiff, and bitpack
             Pnm_CVS.h - struct holding component video color space 
                         values
             ppmdiff.c - checks the percent difference between two images
@@ -33,7 +34,7 @@
     Acknowledgements:
         We recieved help from numerous TAs figuring out a memory issue
         surrounding struct pointers versus structs themselves and freeing 
-        that memory. 
+        associated memory. 
 
     Implementation:
         Overall, our program functions properly to compress and decompress
@@ -46,7 +47,17 @@
         images our program yields about a 7.5% difference. We believe this
         is due to lost precision in transformation and compression of Y 
         values, but were unable to track down a specific source of this 
-        discrepancy. 
+        discrepancy.
+
+        Another uncertainty we had was in declaring global variables. We put
+        our global varibales in decompression.c. Decompression.c and 
+        decompression.h act as "parent" files for the other files, including
+        key components such as structs. There is likely a better way to ensure
+        that all files have access to struct information and global variables,
+        but this was the most efficient way we could think to make those 
+        details available to the entire program given the files we could 
+        manipulate.
+
     
     Assignment:
         This assignment took us approximately 10 hours to analyze and 30 
