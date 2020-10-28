@@ -14,14 +14,13 @@
 
 #include "transformRGB.h"
 
-long double round_f(long double to_round, long double low, long double high){
-    if (to_round < low){
-        to_round = low;
-    } else if (to_round > high){
-        to_round = high;
-    }
-    return to_round;
-}
+/* * * * * * * * private function declarations * * * * * * * * */
+Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
+
+void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
+                A2Methods_Object *ptr, void *cl_struct);
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 
 void convert_to_CVS(Pnm_ppm pixmap)
 {
@@ -41,6 +40,15 @@ void convert_to_CVS(Pnm_ppm pixmap)
     
 }
 
+/* 
+ * Purpose: Apply function, called by map_row_major in convert_to_CVS, visits 
+ *          every element in the pixmap array storing Pnm_rgb structs 
+ * Arguments: Pnm_ppm pixmap
+ * Returns: None (void)
+ * Mem alloc: helper function allocates space for CVS_array, which 
+ *            replaces the pixmap->pixels after freeing pixmap->pixels
+ * C.R.E.:  raised if pixmap is NULL
+ */
 void RGB_to_CVS(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *rgb_elem, void *cl_struct)
 {
@@ -57,6 +65,7 @@ void RGB_to_CVS(int col, int row, A2Methods_UArray2 src_img,
 
 }
 
+/* private function */
 Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator)
 {
     Pnm_CVS CVS_values; 
@@ -74,9 +83,9 @@ Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator)
     CVS_values.PR = ((0.5 * r) - (0.418688 * g) - (0.081312 * b)) / 
                     (long double)denominator;
 
-    CVS_values.Y = round_f(CVS_values.Y, 0, 1);
-    CVS_values.PB = round_f(CVS_values.PB, -0.5, 0.5);
-    CVS_values.PR = round_f(CVS_values.PR, -0.5, 0.5);
+    CVS_values.Y = range_check(CVS_values.Y, 0, 1);
+    CVS_values.PB = range_check(CVS_values.PB, -0.5, 0.5);
+    CVS_values.PR = range_check(CVS_values.PR, -0.5, 0.5);
 
     return CVS_values;
 }

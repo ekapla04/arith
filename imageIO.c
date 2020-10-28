@@ -21,13 +21,13 @@
               incorrectly formatted                                                 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Main driver for formatting pixmap */
+/* Main driver for reading and formatting pixmap */
 Pnm_ppm read_pixmap(FILE *input)
 {
+    assert(input != NULL);
+
     A2Methods_T methods = uarray2_methods_plain; 
-
-    assert(input != NULL && pixmap != NULL && methods != NULL);
-
+    
     Pnm_ppm pixmap = Pnm_ppmread(input, methods);
 
     valid_dimensions(pixmap);
