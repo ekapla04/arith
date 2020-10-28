@@ -73,10 +73,7 @@ Pnm_ppm make_pixmap(FILE *input)
     return pixmap;
 }
 
-//TODO COME BACK HERE -- COULD CAUSE SEGFAULT
-/*                //assert((char)value != EOF);
-                //assert(feof(input) != 0 && ferror(input) != 0);
-*/
+
 void read_codeword(A2Methods_UArray2 CVS_array, FILE *input) 
 {
     assert(CVS_array != NULL && input != NULL);
@@ -84,6 +81,7 @@ void read_codeword(A2Methods_UArray2 CVS_array, FILE *input)
     uint64_t word, value = 0;
     int col, row;
     A2Methods_T methods = uarray2_methods_plain;
+
     /* iterate across pixmap in row-major fashion */
     for (col = 0; col < methods->height(CVS_array); col += 2) {
         for (row = 0; row < methods->width(CVS_array); row += 2) {
@@ -96,7 +94,7 @@ void read_codeword(A2Methods_UArray2 CVS_array, FILE *input)
             unpack_codeword(word, row, col, CVS_array);
         }
     }
-    printf("col: %d, height: %u, row: %d, width: %u", col,  methods->height(CVS_array), row,  methods->width(CVS_array));
+
     if(col < methods->height(CVS_array) || row < methods->width(CVS_array)){
         RAISE(CRE);
     }
@@ -209,4 +207,3 @@ long double range_check(long double value, long double low, long double high)
     }
     return value;
 }
-
