@@ -19,7 +19,7 @@
 #include "except.h"
 #include "bitpack.h"
 
-Except_T Bitpack_Overflow = { "Overflow packing bits" }; //this is in the .h do I need to include it?
+Except_T Bitpack_Overflow = { "Overflow packing bits" }; 
 /* 
  * Purpose: create an unsigned integer whose bits are filled with 1's apart
  *          from the bits starting from lsb and spanning width
@@ -55,8 +55,6 @@ bool Bitpack_fitsu(uint64_t value, unsigned width)
     }
 }
 
-//2^num bits(width) = num ints that can be represented. Divide by 2 and * -1, 
-//get the starting point. If n exists in this range, return true, otherwise return false
 /* 
  * Purpose: Test to see if an integer can be represented in a signed
  *          integer in width bits
