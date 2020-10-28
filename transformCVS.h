@@ -22,8 +22,9 @@
 #include "arith40.h"
 
 #include "imageIO.h"
-#include "compress40.h"
+#include "compress40.h" //WHY?
 
+extern const int DENOMINATOR;
 
 /* 
  * Purpose: Apply function to convert component video color 

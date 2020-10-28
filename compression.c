@@ -16,6 +16,7 @@
 
 #include "compression.h"
 
+
 /* * * * * * * * private function declarations * * * * * * * * */
 block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                            Pnm_CVS pixel3, Pnm_CVS pixel4);

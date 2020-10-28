@@ -54,9 +54,9 @@ struct Pnm_rgb make_RGB(Pnm_CVS CVS)
     green = (1.0 * y) - (0.344136 * pb) - (0.714136 * pr);
     blue = (1.0 * y) + (1.772 * pb) + (0.0 * pr);
 
-    RGB_values.red = round(range_check(red, 0, 1) * 255);
-    RGB_values.green = round(range_check(green, 0, 1) * 255);
-    RGB_values.blue = round(range_check(blue, 0, 1) * 255);
+    RGB_values.red = round(range_check(red, 0, 1) * DENOMINATOR);
+    RGB_values.green = round(range_check(green, 0, 1) * DENOMINATOR);
+    RGB_values.blue = round(range_check(blue, 0, 1) * DENOMINATOR);
 
     return RGB_values;
 
