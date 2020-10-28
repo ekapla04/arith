@@ -15,19 +15,26 @@
 #include "decompression.h"
 #include "except.h"
 
+/* * * * * * * * * * * * * GLOBAL CONSTANTS * * * * * * * * * * * */
 const int DENOMINATOR = 255;
 const int BYTE = 8;
 const int BLOCK = 2;
 
-const long double Q_BCD_MAX = 0.3;
-const long double Q_BCD_MIN = -0.3;
-const long double BCD_MAX = 0.5;
-const long double BCD_MIN = -0.5;
-const long double Y_MAX = 1;
-const long double Y_MIN = 0;
+const int A_FACTOR = 511;
 
-const long double A_FACTOR = 511;
-const long double SCALE_FACTOR = 50;
+const int Q_BCD_MAX = 15;
+const int Q_BCD_MIN = -15;
+
+const long double BCD_MAX_RANGE = 0.5;
+const long double BCD_MIN_RANGE = -0.5;
+
+const long double UN_Q_BCD_MAX = 0.3;
+const long double UN_Q_BCD_MIN = -0.3;
+
+const int Y_MAX = 1;
+const int Y_MIN = 0;
+
+const int SCALE_FACTOR = 50;
 
 Except_T CRE;
 
@@ -83,8 +90,8 @@ void read_codeword(A2Methods_UArray2 CVS_array, FILE *input)
     A2Methods_T methods = uarray2_methods_plain;
 
     /* iterate across pixmap in row-major fashion */
-    for (col = 0; col < methods->height(CVS_array); col += 2) {
-        for (row = 0; row < methods->width(CVS_array); row += 2) {
+    for (col = 0; col < methods->height(CVS_array); col += BLOCK) {
+        for (row = 0; row < methods->width(CVS_array); row += BLOCK) {
             /* read codeword in 8 bit increments */
             for (int i = 24; i >= 0; i -= BYTE) {
                 assert(!feof(input));
@@ -190,10 +197,10 @@ long double unquantize_degree_brightness(int64_t degree)
 
     long double rounded = (long double)degree / SCALE_FACTOR;
 
-    if(rounded < Q_BCD_MIN) {
-        return Q_BCD_MIN;
-    } else if (rounded > Q_BCD_MAX) {
-        return Q_BCD_MAX;
+    if(rounded < UN_Q_BCD_MIN) {
+        return UN_Q_BCD_MIN;
+    } else if (rounded > UN_Q_BCD_MAX) {
+        return UN_Q_BCD_MAX;
     } 
     return rounded;
 }

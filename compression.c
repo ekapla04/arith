@@ -16,7 +16,6 @@
 
 #include "compression.h"
 
-
 /* * * * * * * * private function declarations * * * * * * * * */
 block_info quantize_chroma(Pnm_CVS pixel1, Pnm_CVS pixel2, 
                            Pnm_CVS pixel3, Pnm_CVS pixel4);
@@ -40,8 +39,8 @@ void compress_by_block(A2Methods_UArray2 CVS_array)
     int width = methods->width(CVS_array);
     int height = methods->height(CVS_array);
 
-    for (int col = 0; col < height; col += 2) {
-        for (int row = 0; row < width; row += 2) {
+    for (int col = 0; col < height; col += BLOCK) {
+        for (int row = 0; row < width; row += BLOCK) {
             Pnm_CVS pixel1 = *((Pnm_CVS *)methods->at(CVS_array, 
                                                       row, col));
 
@@ -122,10 +121,10 @@ int64_t quantize_degree_brightness(long double degree)
 {
     int64_t rounded = round(degree * SCALE_FACTOR);
     
-    if(rounded < -15) {
-        return -15;
-    } else if (rounded > 15) {
-        return 15;
+    if(rounded < Q_BCD_MIN) {
+        return Q_BCD_MIN;
+    } else if (rounded > Q_BCD_MAX) {
+        return Q_BCD_MAX;
     } 
 
     return rounded;
@@ -176,8 +175,8 @@ void make_codeword(block_info block)
 */
 void print_word(uint64_t word)
 {
-    for (int i = 24; i >= 0; i -= 8) {
-        putchar(Bitpack_getu(word, 8, i));
+    for (int i = 24; i >= 0; i -= BYTE) {
+        putchar(Bitpack_getu(word, BYTE, i));
     }
 }
 

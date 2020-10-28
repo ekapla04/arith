@@ -14,11 +14,18 @@
 
 #include "transformRGB.h"
 
-/* * * * * * * * private function declarations * * * * * * * * */
+/* * * * * * * * * * * * * private members * * * * * * * * * * */
 Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator);
 
 void RGB_to_CVS(int col, int row, A2Methods_UArray2 array2,
                 A2Methods_Object *ptr, void *cl_struct);
+
+/* struct used to pass in two parameters in the closure */
+typedef struct closure {
+    unsigned denominator;
+    A2Methods_UArray2 array;
+} closure;
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
@@ -83,9 +90,9 @@ Pnm_CVS make_CVS(struct Pnm_rgb RGB, unsigned denominator)
     CVS_values.PR = ((0.5 * r) - (0.418688 * g) - (0.081312 * b)) / 
                     (long double)denominator;
 
-    CVS_values.Y = range_check(CVS_values.Y, 0, 1);
-    CVS_values.PB = range_check(CVS_values.PB, -0.5, 0.5);
-    CVS_values.PR = range_check(CVS_values.PR, -0.5, 0.5);
+    CVS_values.Y = range_check(CVS_values.Y, Y_MIN, Y_MAX);
+    CVS_values.PB = range_check(CVS_values.PB, BCD_MIN_RANGE, BCD_MAX_RANGE);
+    CVS_values.PR = range_check(CVS_values.PR, BCD_MIN_RANGE, BCD_MAX_RANGE);
 
     return CVS_values;
 }

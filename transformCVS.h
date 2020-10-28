@@ -22,10 +22,9 @@
 #include "arith40.h"
 
 #include "imageIO.h"
-#include "compress40.h" //WHY?
+#include "compress40.h"
 
 extern const int DENOMINATOR;
-
 /* 
  * Purpose: Apply function to convert component video color 
  *          space values to RGB values. Takes each element holding CVS values,

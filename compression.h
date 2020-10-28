@@ -28,7 +28,8 @@
 #include "decompression.h"
 #include "compress40.h"
 
-extern const long double SCALE_FACTOR, A_FACTOR;
+extern const long double Q_BCD_MAX, Q_BCD_MIN;
+extern const int BYTE, BLOCK, SCALE_FACTOR, A_FACTOR;
 
 /* 
  * Purpose: handle all compression that happens block-by-block. Prints 

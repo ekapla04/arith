@@ -62,4 +62,5 @@ void read_codeword(A2Methods_UArray2 CVS_array, FILE *input);
  * Mem alloc: none
  * C.R.E.: None
  */
-long double range_check(long double to_round, long double low, long double high);
+long double range_check(long double to_round, long double low, 
+                        long double high);

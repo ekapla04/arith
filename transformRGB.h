@@ -24,8 +24,9 @@
 
 #include "compression.h"
 #include "compress40.h"
-#include "closure_struct.h"
 
+extern const long double BCD_MAX_RANGE, BCD_MIN_RANGE;
+extern const int Y_MIN, Y_MAX;
 /* 
  * Purpose: Take the given pixmap full of Pnm_rgb structs and call
  *          helper function to create CVS array and populate it with 
