@@ -49,7 +49,7 @@ Pnm_ppm make_pixmap(FILE *input);
  * Arguments: Array holding Pnm_CVS structs, file pointer
  * Returns: None (void)
  * Mem alloc: none
- * C.R.E.:  //TODO
+ * C.R.E.: raised in bitpack.c if codeword contents is invalid
  */
 void read_codeword(A2Methods_UArray2 CVS_array, FILE *input); 
 
