@@ -11,8 +11,11 @@
 *                                                                      *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-
 #include "transformCVS.h"
+
+/* * * * * * * * private function declarations * * * * * * * * */
+struct Pnm_rgb make_RGB(Pnm_CVS CVS);
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
                 A2Methods_Object *cvs_elem, void *RGB_array)
@@ -29,6 +32,15 @@ void CVS_to_RGB(int col, int row, A2Methods_UArray2 src_img,
 
 }
 
+/* 
+ * Purpose: Helper function that makes instance of RGB struct and calculates
+ *          color values from CVS values
+ * Arguments: Pnm_CVS 
+ * Returns: Pnm_rgb struct
+ * Notes: Performs range check on RGB values and rounds them
+ * Mem alloc: None
+ * C.R.E.: None
+ */
 struct Pnm_rgb make_RGB(Pnm_CVS CVS)
 {
     struct Pnm_rgb RGB_values;
